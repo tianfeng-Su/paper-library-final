@@ -1,0 +1,24 @@
+{
+  "name": "paper-library",
+  "version": "1.0.0",
+  "description": "论文知识中枢",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required'",
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "ali-oss": "^6.20.0",
+    "cors": "^2.8.5",
+    "firebase-admin": "^12.7.0",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
