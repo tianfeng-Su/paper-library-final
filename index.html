@@ -16,8 +16,8 @@
         .search-container { background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 2rem; }
         .paper-item { display: flex; gap: 1.5rem; padding: 1.5rem; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 0.5rem; transition: border-color 0.2s, box-shadow 0.2s; }
         .paper-item:hover { border-color: #4f46e5; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .btn-primary { background-color: #4f46e5; color: #ffffff; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
-        .btn-primary:hover { background-color: #4338ca; }
+        .btn-primary { background-color: #4f46e5; color: #ffffff; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .btn-primary:hover { background-color: #4338ca; transform: translateY(-1px); }
         .btn-danger { background-color: #ef4444; color: #ffffff; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
         .btn-danger:hover { background-color: #dc2626; }
         .modal-backdrop { background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); }
@@ -42,10 +42,156 @@
         .summary-text p:last-child { margin-bottom: 0; }
         .show-more-btn { color: #4f46e5; font-weight: 500; cursor: pointer; margin-left: 8px; }
         .show-more-btn:hover { text-decoration: underline; }
-        .pdf-viewer { width: 100%; height: 600px; border: 1px solid #e5e7eb; }
+        .pdf-viewer { width: 100%; height: 600px; border: 1px solid #e5e7eb; border-radius: 0.5rem; }
         .summary-content { max-height: 400px; overflow-y: auto; }
         .loading-spinner { border: 3px solid #f3f4f6; border-top: 3px solid #4f46e5; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* 美化上传按钮 */
+        .upload-btn-group {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        
+        .upload-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .upload-btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+        }
+        
+        .upload-btn-primary:hover {
+            background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+        }
+        
+        .upload-btn-secondary {
+            background: linear-gradient(135deg, #059669 0%, #0d9488 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
+        }
+        
+        .upload-btn-secondary:hover {
+            background: linear-gradient(135deg, #047857 0%, #0f766e 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(5, 150, 105, 0.3);
+        }
+        
+        .login-btn {
+            color: #6b7280;
+            font-weight: 600;
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .login-btn:hover {
+            color: #4f46e5;
+            background-color: #f3f4f6;
+        }
+        
+        /* PDF 预览优化 */
+        .pdf-preview-container {
+            width: 100%;
+            height: 80vh;
+            max-height: 800px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            background: #f8fafc;
+        }
+        
+        .pdf-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .pdf-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .pdf-control-btn {
+            padding: 0.375rem 0.75rem;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        
+        .pdf-control-btn:hover {
+            background: #e5e7eb;
+        }
+        
+        .pdf-control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pdf-canvas-container {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 1rem;
+        }
+        
+        .pdf-canvas {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 0.25rem;
+        }
+        
+        /* 上传模态框美化 */
+        .upload-modal {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+        
+        .upload-area.dragover {
+            border-color: #4f46e5;
+            background: #eef2ff;
+        }
+        
+        .upload-icon {
+            width: 3rem;
+            height: 3rem;
+            margin: 0 auto 1rem;
+        }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8">
@@ -59,9 +205,21 @@
                 <h1 class="text-2xl font-bold text-gray-800">论文知识中枢</h1>
             </a>
             <div class="flex items-center gap-4">
-                <button id="upload-button" class="btn-primary hidden">上传论文</button>
-                <button id="batch-upload-button" class="bg-green-600 hover:bg-green-700 text-white hidden">批量上传</button>
-                <div id="login-trigger" class="text-gray-600 hover:text-indigo-600 cursor-pointer text-sm font-semibold">
+                <div class="upload-btn-group">
+                    <button id="upload-button" class="upload-btn upload-btn-primary hidden">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        上传论文
+                    </button>
+                    <button id="batch-upload-button" class="upload-btn upload-btn-secondary hidden">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 12l2 2 4-4"></path>
+                        </svg>
+                        批量上传
+                    </button>
+                </div>
+                <div id="login-trigger" class="login-btn">
                     <span id="login-status-text">管理员登录</span>
                 </div>
             </div>
@@ -175,53 +333,170 @@
             }
         }
 
-        // PDF预览功能 - 使用新窗口打开避免Safari下载问题
-        async function previewPdf(fileName, paperId) {
+        // 使用 PDF.js 渲染 PDF 预览
+        async function previewPdfWithPdfJs(fileName, paperId) {
             try {
                 // 更新预览计数
                 await updatePreviewCount(paperId);
                 
                 // 获取PDF URL
                 const pdfUrl = await getSignedUrlAndAct(fileName, 'preview');
-                if (pdfUrl) {
-                    // 在新窗口中打开PDF，避免Safari的下载问题
-                    const newWindow = window.open('', '_blank');
-                    if (newWindow) {
-                        newWindow.document.write(`
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <title>PDF预览 - ${fileName}</title>
-                                <style>
-                                    body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
-                                    .header { background: #4f46e5; color: white; padding: 1rem; text-align: center; }
-                                    .pdf-container { width: 100%; height: calc(100vh - 60px); }
-                                    .pdf-embed { width: 100%; height: 100%; border: none; }
-                                    .fallback { padding: 2rem; text-align: center; }
-                                    .fallback a { color: #4f46e5; text-decoration: none; padding: 0.5rem 1rem; border: 1px solid #4f46e5; border-radius: 0.375rem; }
-                                    .fallback a:hover { background: #4f46e5; color: white; }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="header">
-                                    <h1>PDF预览 - ${fileName}</h1>
+                if (!pdfUrl) return;
+
+                const content = `
+                    <div class="p-0">
+                        <div class="flex justify-between items-center p-4 border-b">
+                            <h2 class="text-xl font-bold text-gray-800">PDF预览 - ${fileName}</h2>
+                            <button class="btn-close-modal text-gray-400 hover:text-gray-800 text-2xl">×</button>
+                        </div>
+                        <div class="pdf-preview-container">
+                            <div class="pdf-toolbar">
+                                <div class="pdf-controls">
+                                    <button id="prev-page" class="pdf-control-btn">上一页</button>
+                                    <span id="page-info" class="text-sm text-gray-600 px-2">第 1 页，共 - 页</span>
+                                    <button id="next-page" class="pdf-control-btn">下一页</button>
                                 </div>
-                                <div class="pdf-container">
-                                    <embed src="${pdfUrl}" type="application/pdf" class="pdf-embed">
-                                    <div class="fallback">
-                                        <p>您的浏览器不支持PDF预览</p>
-                                        <a href="${pdfUrl}" target="_blank">点击这里下载PDF文件</a>
-                                    </div>
+                                <div class="pdf-controls">
+                                    <button id="zoom-out" class="pdf-control-btn">缩小</button>
+                                    <span id="zoom-info" class="text-sm text-gray-600 px-2">100%</span>
+                                    <button id="zoom-in" class="pdf-control-btn">放大</button>
                                 </div>
-                            </body>
-                            </html>
-                        `);
-                        newWindow.document.close();
+                                <div>
+                                    <a href="${pdfUrl}" download="${fileName}" class="pdf-control-btn bg-indigo-600 text-white hover:bg-indigo-700">下载</a>
+                                </div>
+                            </div>
+                            <div class="pdf-canvas-container">
+                                <div id="pdf-loading" class="flex flex-col items-center justify-center py-12">
+                                    <div class="loading-spinner mb-4"></div>
+                                    <p class="text-gray-600">正在加载PDF...</p>
+                                </div>
+                                <canvas id="pdf-canvas" class="pdf-canvas hidden"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const modal = showModal('pdf-preview-modal', content, 'max-w-6xl');
+                
+                // 初始化 PDF.js
+                let pdfDoc = null;
+                let pageNum = 1;
+                let pageRendering = false;
+                let pageNumPending = null;
+                let scale = 1.0;
+                
+                const canvas = document.getElementById('pdf-canvas');
+                const ctx = canvas.getContext('2d');
+                const loadingDiv = document.getElementById('pdf-loading');
+
+                // 渲染页面
+                function renderPage(num) {
+                    pageRendering = true;
+                    
+                    pdfDoc.getPage(num).then(function(page) {
+                        const viewport = page.getViewport({ scale: scale });
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+
+                        const renderContext = {
+                            canvasContext: ctx,
+                            viewport: viewport
+                        };
+                        
+                        const renderTask = page.render(renderContext);
+                        
+                        renderTask.promise.then(function() {
+                            pageRendering = false;
+                            if (pageNumPending !== null) {
+                                renderPage(pageNumPending);
+                                pageNumPending = null;
+                            }
+                            
+                            // 隐藏加载指示器，显示canvas
+                            loadingDiv.classList.add('hidden');
+                            canvas.classList.remove('hidden');
+                        });
+                    });
+
+                    // 更新页面信息
+                    document.getElementById('page-info').textContent = `第 ${num} 页，共 ${pdfDoc.numPages} 页`;
+                    document.getElementById('zoom-info').textContent = `${Math.round(scale * 100)}%`;
+                }
+
+                // 队列渲染页面
+                function queueRenderPage(num) {
+                    if (pageRendering) {
+                        pageNumPending = num;
                     } else {
-                        // 如果无法打开新窗口，则直接跳转
-                        window.open(pdfUrl, '_blank');
+                        renderPage(num);
                     }
                 }
+
+                // 上一页
+                function onPrevPage() {
+                    if (pageNum <= 1) return;
+                    pageNum--;
+                    queueRenderPage(pageNum);
+                }
+
+                // 下一页
+                function onNextPage() {
+                    if (pageNum >= pdfDoc.numPages) return;
+                    pageNum++;
+                    queueRenderPage(pageNum);
+                }
+
+                // 缩放
+                function onZoomIn() {
+                    scale += 0.25;
+                    queueRenderPage(pageNum);
+                }
+
+                function onZoomOut() {
+                    if (scale <= 0.5) return;
+                    scale -= 0.25;
+                    queueRenderPage(pageNum);
+                }
+
+                // 绑定事件
+                document.getElementById('prev-page').addEventListener('click', onPrevPage);
+                document.getElementById('next-page').addEventListener('click', onNextPage);
+                document.getElementById('zoom-in').addEventListener('click', onZoomIn);
+                document.getElementById('zoom-out').addEventListener('click', onZoomOut);
+
+                // 加载PDF
+                window.pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
+                    pdfDoc = pdfDoc_;
+                    renderPage(pageNum);
+                    
+                    // 更新按钮状态
+                    function updateButtons() {
+                        document.getElementById('prev-page').disabled = pageNum <= 1;
+                        document.getElementById('next-page').disabled = pageNum >= pdfDoc.numPages;
+                    }
+                    updateButtons();
+                    
+                    // 添加键盘事件
+                    document.addEventListener('keydown', function(e) {
+                        if (modal && document.body.contains(modal)) {
+                            if (e.key === 'ArrowLeft') onPrevPage();
+                            if (e.key === 'ArrowRight') onNextPage();
+                            if (e.key === '=' || e.key === '+') onZoomIn();
+                            if (e.key === '-') onZoomOut();
+                        }
+                    });
+                    
+                }).catch(function(error) {
+                    console.error('PDF加载失败:', error);
+                    loadingDiv.innerHTML = `
+                        <div class="text-center py-8">
+                            <div class="text-red-500 text-lg mb-4">❌ PDF加载失败</div>
+                            <p class="text-gray-600 mb-4">${error.message}</p>
+                            <a href="${pdfUrl}" target="_blank" class="btn-primary">尝试在新窗口打开</a>
+                        </div>
+                    `;
+                });
+
             } catch (error) {
                 console.error('Preview error:', error);
                 alert(`预览失败: ${error.message}`);
@@ -309,6 +584,319 @@
                     </div>
                 `;
             }
+        }
+
+        // 显示上传模态框
+        function showUploadModal() {
+            const content = `
+                <div class="upload-modal p-0 rounded-lg overflow-hidden">
+                    <div class="bg-white p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800">上传论文</h2>
+                            <button class="btn-close-modal text-gray-400 hover:text-gray-800 text-2xl">×</button>
+                        </div>
+                        
+                        <div class="upload-area" id="upload-area">
+                            <svg class="upload-icon text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">拖拽文件到此处或点击选择</h3>
+                            <p class="text-sm text-gray-500 mb-4">支持 PDF 格式，最大 50MB</p>
+                            <input type="file" id="file-input" accept=".pdf" class="hidden">
+                            <button id="select-file-btn" class="btn-primary">选择文件</button>
+                        </div>
+                        
+                        <div id="file-info" class="hidden mt-4 p-4 bg-gray-50 rounded-lg">
+                            <h4 class="font-semibold mb-2">文件信息</h4>
+                            <div id="file-details"></div>
+                        </div>
+                        
+                        <form id="upload-form" class="hidden mt-6 space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">论文标题 *</label>
+                                <input type="text" name="title" required class="form-input w-full" placeholder="请输入论文标题">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">作者 *</label>
+                                <input type="text" name="authors" required class="form-input w-full" placeholder="多个作者请用逗号分隔">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">关键词</label>
+                                <input type="text" name="keywords" class="form-input w-full" placeholder="多个关键词请用逗号分隔">
+                            </div>
+                            <div class="flex gap-4">
+                                <button type="button" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-md font-semibold" onclick="this.closest('.modal-backdrop').remove()">取消</button>
+                                <button type="submit" class="flex-1 btn-primary py-2 px-4 rounded-md font-semibold">开始上传</button>
+                            </div>
+                        </form>
+                        
+                        <div id="upload-progress" class="hidden mt-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium">上传进度</span>
+                                <span id="upload-percentage" class="text-sm text-gray-600">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div id="upload-progress-fill" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const modal = showModal('upload-modal', content, 'max-w-lg');
+            
+            // 文件上传逻辑
+            const uploadArea = document.getElementById('upload-area');
+            const fileInput = document.getElementById('file-input');
+            const selectFileBtn = document.getElementById('select-file-btn');
+            const fileInfo = document.getElementById('file-info');
+            const uploadForm = document.getElementById('upload-form');
+            let selectedFile = null;
+            
+            // 点击选择文件
+            selectFileBtn.addEventListener('click', () => fileInput.click());
+            
+            // 文件选择
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+            
+            // 拖拽上传
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    handleFileSelect(e.dataTransfer.files[0]);
+                }
+            });
+            
+            function handleFileSelect(file) {
+                if (file.type !== 'application/pdf') {
+                    alert('请选择PDF文件');
+                    return;
+                }
+                
+                if (file.size > 50 * 1024 * 1024) {
+                    alert('文件大小不能超过50MB');
+                    return;
+                }
+                
+                selectedFile = file;
+                
+                // 显示文件信息
+                document.getElementById('file-details').innerHTML = `
+                    <p><strong>文件名：</strong>${file.name}</p>
+                    <p><strong>大小：</strong>${formatBytes(file.size)}</p>
+                    <p><strong>类型：</strong>${file.type}</p>
+                `;
+                
+                fileInfo.classList.remove('hidden');
+                uploadForm.classList.remove('hidden');
+                uploadArea.classList.add('hidden');
+            }
+            
+            // 表单提交
+            uploadForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!selectedFile) {
+                    alert('请先选择文件');
+                    return;
+                }
+                
+                const formData = new FormData(e.target);
+                const title = formData.get('title');
+                const authors = formData.get('authors');
+                const keywords = formData.get('keywords');
+                
+                // 显示上传进度
+                uploadForm.classList.add('hidden');
+                document.getElementById('upload-progress').classList.remove('hidden');
+                
+                try {
+                    // 这里应该实现实际的上传逻辑
+                    // 目前只是模拟进度
+                    await simulateUpload();
+                    
+                    alert('上传成功！');
+                    modal.remove();
+                    
+                    // 刷新论文列表
+                    fetchAndRenderPapers();
+                    updateLeaderboards();
+                    
+                } catch (error) {
+                    alert('上传失败：' + error.message);
+                    uploadForm.classList.remove('hidden');
+                    document.getElementById('upload-progress').classList.add('hidden');
+                }
+            });
+            
+            // 模拟上传进度
+            async function simulateUpload() {
+                const progressFill = document.getElementById('upload-progress-fill');
+                const percentage = document.getElementById('upload-percentage');
+                
+                for (let i = 0; i <= 100; i += 10) {
+                    progressFill.style.width = i + '%';
+                    percentage.textContent = i + '%';
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+            }
+        }
+
+        // 显示批量上传模态框
+        function showBatchUploadModal() {
+            const content = `
+                <div class="upload-modal p-0 rounded-lg overflow-hidden">
+                    <div class="bg-white p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800">批量上传论文</h2>
+                            <button class="btn-close-modal text-gray-400 hover:text-gray-800 text-2xl">×</button>
+                        </div>
+                        
+                        <div class="upload-area" id="batch-upload-area">
+                            <svg class="upload-icon text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 12l2 2 4-4"></path>
+                            </svg>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">选择多个PDF文件</h3>
+                            <p class="text-sm text-gray-500 mb-4">支持同时选择多个PDF文件，每个最大50MB</p>
+                            <input type="file" id="batch-file-input" accept=".pdf" multiple class="hidden">
+                            <button id="batch-select-file-btn" class="btn-primary">选择文件</button>
+                        </div>
+                        
+                        <div id="batch-file-list" class="hidden mt-4 max-h-60 overflow-y-auto"></div>
+                        
+                        <div id="batch-upload-controls" class="hidden mt-6 flex gap-4">
+                            <button type="button" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-md font-semibold" onclick="this.closest('.modal-backdrop').remove()">取消</button>
+                            <button id="start-batch-upload" class="flex-1 btn-primary py-2 px-4 rounded-md font-semibold">开始批量上传</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const modal = showModal('batch-upload-modal', content, 'max-w-2xl');
+            
+            // 批量上传逻辑
+            const batchUploadArea = document.getElementById('batch-upload-area');
+            const batchFileInput = document.getElementById('batch-file-input');
+            const batchSelectFileBtn = document.getElementById('batch-select-file-btn');
+            const batchFileList = document.getElementById('batch-file-list');
+            const batchUploadControls = document.getElementById('batch-upload-controls');
+            let selectedFiles = [];
+            
+            batchSelectFileBtn.addEventListener('click', () => batchFileInput.click());
+            
+            batchFileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleBatchFileSelect(Array.from(e.target.files));
+                }
+            });
+            
+            function handleBatchFileSelect(files) {
+                const validFiles = files.filter(file => {
+                    if (file.type !== 'application/pdf') {
+                        alert(`${file.name} 不是PDF文件，已忽略`);
+                        return false;
+                    }
+                    if (file.size > 50 * 1024 * 1024) {
+                        alert(`${file.name} 文件过大，已忽略`);
+                        return false;
+                    }
+                    return true;
+                });
+                
+                if (validFiles.length === 0) return;
+                
+                selectedFiles = validFiles;
+                
+                // 显示文件列表
+                batchFileList.innerHTML = selectedFiles.map((file, index) => `
+                    <div class="file-item flex justify-between items-center" id="batch-file-${index}">
+                        <div>
+                            <p class="font-medium">${file.name}</p>
+                            <p class="text-sm text-gray-500">${formatBytes(file.size)}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="upload-status text-sm text-gray-600">等待上传</span>
+                            <button class="text-red-500 hover:text-red-700" onclick="removeBatchFile(${index})">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                batchFileList.classList.remove('hidden');
+                batchUploadControls.classList.remove('hidden');
+                batchUploadArea.classList.add('hidden');
+            }
+            
+            // 删除文件
+            window.removeBatchFile = (index) => {
+                selectedFiles.splice(index, 1);
+                if (selectedFiles.length === 0) {
+                    batchFileList.classList.add('hidden');
+                    batchUploadControls.classList.add('hidden');
+                    batchUploadArea.classList.remove('hidden');
+                } else {
+                    handleBatchFileSelect(selectedFiles);
+                }
+            };
+            
+            // 开始批量上传
+            document.getElementById('start-batch-upload').addEventListener('click', async () => {
+                if (selectedFiles.length === 0) return;
+                
+                document.getElementById('start-batch-upload').disabled = true;
+                document.getElementById('start-batch-upload').textContent = '上传中...';
+                
+                // 逐个上传文件
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    const file = selectedFiles[i];
+                    const fileItem = document.getElementById(`batch-file-${i}`);
+                    const statusSpan = fileItem.querySelector('.upload-status');
+                    
+                    try {
+                        statusSpan.textContent = '上传中...';
+                        statusSpan.className = 'upload-status text-sm text-blue-600';
+                        fileItem.className = 'file-item flex justify-between items-center processing';
+                        
+                        // 这里应该实现实际的上传逻辑
+                        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+                        
+                        statusSpan.textContent = '上传成功';
+                        statusSpan.className = 'upload-status text-sm text-green-600';
+                        fileItem.className = 'file-item flex justify-between items-center success';
+                        
+                    } catch (error) {
+                        statusSpan.textContent = '上传失败';
+                        statusSpan.className = 'upload-status text-sm text-red-600';
+                        fileItem.className = 'file-item flex justify-between items-center error';
+                    }
+                }
+                
+                document.getElementById('start-batch-upload').textContent = '批量上传完成';
+                
+                // 刷新数据
+                setTimeout(() => {
+                    fetchAndRenderPapers();
+                    updateLeaderboards();
+                    modal.remove();
+                }, 2000);
+            });
         }
 
         // 更新预览计数
@@ -619,6 +1207,18 @@
                     return;
                 }
                 
+                // 处理上传按钮
+                if (target.closest('#upload-button')) {
+                    showUploadModal();
+                    return;
+                }
+                
+                // 处理批量上传按钮
+                if (target.closest('#batch-upload-button')) {
+                    showBatchUploadModal();
+                    return;
+                }
+                
                 // 处理关键词展开
                 if (target.matches('[data-action="show-more-keywords"]')) {
                     const keywordsContainer = target.parentElement;
@@ -646,7 +1246,7 @@
                             break;
                         
                         case 'preview-pdf':
-                            await previewPdf(fileName, paperId);
+                            await previewPdfWithPdfJs(fileName, paperId);
                             break;
                         
                         case 'download':
