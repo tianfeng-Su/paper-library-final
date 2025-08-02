@@ -167,7 +167,7 @@
             border-radius: 0.25rem;
         }
         
-        /* 上传模态框美化 */
+        /* 上传模态框美化 - 修复文字颜色问题 */
         .upload-modal {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -191,6 +191,39 @@
             width: 3rem;
             height: 3rem;
             margin: 0 auto 1rem;
+        }
+
+        /* 修复文件信息显示的文字颜色 */
+        .file-details {
+            color: #374151;
+        }
+
+        .file-details p {
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-details strong {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        /* 确保表单元素在白色背景上可见 */
+        .upload-form-container {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+        }
+
+        .upload-form-container .form-input {
+            background-color: #f9fafb;
+            border: 1px solid #d1d5db;
+            color: #111827;
+        }
+
+        .upload-form-container label {
+            color: #374151;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -270,6 +303,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyBo08_3_GqZeXpDI1jAsgS1XHZRK8PQQYY",
@@ -281,6 +315,7 @@
         };
 
         let auth;
+        let db;
         let lastVisible = null;
         let isLoading = false;
         let allPapersLoaded = false;
@@ -306,11 +341,13 @@
                 } else if (action === 'preview') {
                     method = 'GET';
                     disposition = 'inline';
+                } else if (action === 'upload') {
+                    method = 'PUT';
                 }
 
                 const response = await fetch(`/api/generate-upload-url?name=${encodeURIComponent(fileName)}&method=${method}&disposition=${disposition}`);
                 if (!response.ok) {
-                    throw new Error(`获取${action === 'download' ? '下载' : '预览'}链接失败`);
+                    throw new Error(`获取${action === 'download' ? '下载' : action === 'upload' ? '上传' : '预览'}链接失败`);
                 }
                 
                 const data = await response.json();
@@ -325,11 +362,53 @@
                     document.body.removeChild(a);
                 } else if (action === 'preview') {
                     return data.uploadUrl;
+                } else if (action === 'upload') {
+                    return data;
                 }
             } catch (error) {
                 console.error(`${action} error:`, error);
-                alert(`${action === 'download' ? '下载' : '预览'}失败: ${error.message}`);
+                alert(`${action === 'download' ? '下载' : action === 'upload' ? '上传' : '预览'}失败: ${error.message}`);
                 return null;
+            }
+        }
+
+        // 实际的文件上传函数
+        async function uploadFileToOSS(file, uploadUrl) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        updateUploadProgress(percentComplete);
+                    }
+                });
+                
+                xhr.addEventListener('load', () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve();
+                    } else {
+                        reject(new Error(`上传失败: HTTP ${xhr.status}`));
+                    }
+                });
+                
+                xhr.addEventListener('error', () => {
+                    reject(new Error('网络错误'));
+                });
+                
+                xhr.open('PUT', uploadUrl);
+                xhr.setRequestHeader('Content-Type', file.type);
+                xhr.send(file);
+            });
+        }
+
+        function updateUploadProgress(percentage) {
+            const progressFill = document.getElementById('upload-progress-fill');
+            const percentageSpan = document.getElementById('upload-percentage');
+            
+            if (progressFill && percentageSpan) {
+                progressFill.style.width = percentage + '%';
+                percentageSpan.textContent = Math.round(percentage) + '%';
             }
         }
 
@@ -586,11 +665,11 @@
             }
         }
 
-        // 显示上传模态框
+        // 显示上传模态框 - 修复文字颜色和实际上传功能
         function showUploadModal() {
             const content = `
                 <div class="upload-modal p-0 rounded-lg overflow-hidden">
-                    <div class="bg-white p-6">
+                    <div class="upload-form-container">
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">上传论文</h2>
                             <button class="btn-close-modal text-gray-400 hover:text-gray-800 text-2xl">×</button>
@@ -607,8 +686,8 @@
                         </div>
                         
                         <div id="file-info" class="hidden mt-4 p-4 bg-gray-50 rounded-lg">
-                            <h4 class="font-semibold mb-2">文件信息</h4>
-                            <div id="file-details"></div>
+                            <h4 class="font-semibold mb-2 text-gray-700">文件信息</h4>
+                            <div id="file-details" class="file-details"></div>
                         </div>
                         
                         <form id="upload-form" class="hidden mt-6 space-y-4">
@@ -632,12 +711,13 @@
                         
                         <div id="upload-progress" class="hidden mt-6">
                             <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm font-medium">上传进度</span>
+                                <span class="text-sm font-medium text-gray-700">上传进度</span>
                                 <span id="upload-percentage" class="text-sm text-gray-600">0%</span>
                             </div>
                             <div class="progress-bar">
                                 <div id="upload-progress-fill" class="progress-fill" style="width: 0%"></div>
                             </div>
+                            <div id="upload-status" class="mt-2 text-sm text-gray-600">准备上传...</div>
                         </div>
                     </div>
                 </div>
@@ -701,12 +781,18 @@
                     <p><strong>类型：</strong>${file.type}</p>
                 `;
                 
+                // 自动填充标题（去掉.pdf扩展名）
+                const titleInput = uploadForm.querySelector('input[name="title"]');
+                if (titleInput && !titleInput.value) {
+                    titleInput.value = file.name.replace(/\.pdf$/i, '');
+                }
+                
                 fileInfo.classList.remove('hidden');
                 uploadForm.classList.remove('hidden');
                 uploadArea.classList.add('hidden');
             }
             
-            // 表单提交
+            // 表单提交 - 实现真实的上传功能
             uploadForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
@@ -716,51 +802,86 @@
                 }
                 
                 const formData = new FormData(e.target);
-                const title = formData.get('title');
-                const authors = formData.get('authors');
-                const keywords = formData.get('keywords');
+                const title = formData.get('title').trim();
+                const authors = formData.get('authors').trim();
+                const keywords = formData.get('keywords').trim();
+                
+                if (!title || !authors) {
+                    alert('请填写标题和作者信息');
+                    return;
+                }
                 
                 // 显示上传进度
                 uploadForm.classList.add('hidden');
                 document.getElementById('upload-progress').classList.remove('hidden');
                 
+                const statusDiv = document.getElementById('upload-status');
+                
                 try {
-                    // 这里应该实现实际的上传逻辑
-                    // 目前只是模拟进度
-                    await simulateUpload();
+                    // 1. 获取上传URL
+                    statusDiv.textContent = '获取上传链接...';
+                    const uploadData = await getSignedUrlAndAct(selectedFile.name, 'upload');
+                    if (!uploadData) {
+                        throw new Error('获取上传链接失败');
+                    }
                     
-                    alert('上传成功！');
-                    modal.remove();
+                    // 2. 上传文件到OSS
+                    statusDiv.textContent = '正在上传文件...';
+                    await uploadFileToOSS(selectedFile, uploadData.uploadUrl);
                     
-                    // 刷新论文列表
-                    fetchAndRenderPapers();
-                    updateLeaderboards();
+                    // 3. 保存论文信息到数据库
+                    statusDiv.textContent = '保存论文信息...';
+                    const authorsArray = authors.split(/[,，]/).map(name => name.trim()).filter(Boolean);
+                    const keywordsArray = keywords ? keywords.split(/[,，]/).map(kw => kw.trim()).filter(Boolean) : [];
+                    
+                    const paperData = {
+                        title: title,
+                        authors: authorsArray,
+                        keywords: keywordsArray,
+                        summary: '',
+                        fileUrl: uploadData.fileUrl,
+                        fileName: selectedFile.name,
+                        fileSize: selectedFile.size,
+                        fileType: 'PDF',
+                        uploadDate: serverTimestamp(),
+                        previewCount: 0,
+                        downloadCount: 0,
+                        ratingSum: 0,
+                        ratingCount: 0,
+                    };
+                    
+                    await addDoc(collection(db, 'papers'), paperData);
+                    
+                    statusDiv.textContent = '上传完成！';
+                    updateUploadProgress(100);
+                    
+                    setTimeout(() => {
+                        alert('论文上传成功！');
+                        modal.remove();
+                        
+                        // 刷新论文列表
+                        lastVisible = null;
+                        allPapersLoaded = false;
+                        fetchAndRenderPapers();
+                        updateLeaderboards();
+                    }, 1000);
                     
                 } catch (error) {
-                    alert('上传失败：' + error.message);
-                    uploadForm.classList.remove('hidden');
-                    document.getElementById('upload-progress').classList.add('hidden');
+                    console.error('Upload error:', error);
+                    statusDiv.textContent = '上传失败: ' + error.message;
+                    setTimeout(() => {
+                        uploadForm.classList.remove('hidden');
+                        document.getElementById('upload-progress').classList.add('hidden');
+                    }, 3000);
                 }
             });
-            
-            // 模拟上传进度
-            async function simulateUpload() {
-                const progressFill = document.getElementById('upload-progress-fill');
-                const percentage = document.getElementById('upload-percentage');
-                
-                for (let i = 0; i <= 100; i += 10) {
-                    progressFill.style.width = i + '%';
-                    percentage.textContent = i + '%';
-                    await new Promise(resolve => setTimeout(resolve, 200));
-                }
-            }
         }
 
         // 显示批量上传模态框
         function showBatchUploadModal() {
             const content = `
                 <div class="upload-modal p-0 rounded-lg overflow-hidden">
-                    <div class="bg-white p-6">
+                    <div class="upload-form-container">
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">批量上传论文</h2>
                             <button class="btn-close-modal text-gray-400 hover:text-gray-800 text-2xl">×</button>
@@ -825,7 +946,7 @@
                 batchFileList.innerHTML = selectedFiles.map((file, index) => `
                     <div class="file-item flex justify-between items-center" id="batch-file-${index}">
                         <div>
-                            <p class="font-medium">${file.name}</p>
+                            <p class="font-medium text-gray-800">${file.name}</p>
                             <p class="text-sm text-gray-500">${formatBytes(file.size)}</p>
                         </div>
                         <div class="flex items-center gap-2">
@@ -856,12 +977,16 @@
                 }
             };
             
-            // 开始批量上传
+            // 开始批量上传 - 实现真实的批量上传功能
             document.getElementById('start-batch-upload').addEventListener('click', async () => {
                 if (selectedFiles.length === 0) return;
                 
-                document.getElementById('start-batch-upload').disabled = true;
-                document.getElementById('start-batch-upload').textContent = '上传中...';
+                const startBtn = document.getElementById('start-batch-upload');
+                startBtn.disabled = true;
+                startBtn.textContent = '上传中...';
+                
+                let successCount = 0;
+                let failCount = 0;
                 
                 // 逐个上传文件
                 for (let i = 0; i < selectedFiles.length; i++) {
@@ -874,28 +999,59 @@
                         statusSpan.className = 'upload-status text-sm text-blue-600';
                         fileItem.className = 'file-item flex justify-between items-center processing';
                         
-                        // 这里应该实现实际的上传逻辑
-                        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+                        // 1. 获取上传URL
+                        const uploadData = await getSignedUrlAndAct(file.name, 'upload');
+                        if (!uploadData) {
+                            throw new Error('获取上传链接失败');
+                        }
+                        
+                        // 2. 上传文件
+                        await uploadFileToOSS(file, uploadData.uploadUrl);
+                        
+                        // 3. 保存到数据库
+                        const fileName = file.name.replace(/\.pdf$/i, '');
+                        const paperData = {
+                            title: fileName,
+                            authors: [fileName], // 批量上传时使用文件名作为默认作者
+                            keywords: [],
+                            summary: '',
+                            fileUrl: uploadData.fileUrl,
+                            fileName: file.name,
+                            fileSize: file.size,
+                            fileType: 'PDF',
+                            uploadDate: serverTimestamp(),
+                            previewCount: 0,
+                            downloadCount: 0,
+                            ratingSum: 0,
+                            ratingCount: 0,
+                        };
+                        
+                        await addDoc(collection(db, 'papers'), paperData);
                         
                         statusSpan.textContent = '上传成功';
                         statusSpan.className = 'upload-status text-sm text-green-600';
                         fileItem.className = 'file-item flex justify-between items-center success';
+                        successCount++;
                         
                     } catch (error) {
+                        console.error(`Upload error for ${file.name}:`, error);
                         statusSpan.textContent = '上传失败';
                         statusSpan.className = 'upload-status text-sm text-red-600';
                         fileItem.className = 'file-item flex justify-between items-center error';
+                        failCount++;
                     }
                 }
                 
-                document.getElementById('start-batch-upload').textContent = '批量上传完成';
+                startBtn.textContent = `批量上传完成 (成功: ${successCount}, 失败: ${failCount})`;
                 
                 // 刷新数据
                 setTimeout(() => {
+                    lastVisible = null;
+                    allPapersLoaded = false;
                     fetchAndRenderPapers();
                     updateLeaderboards();
                     modal.remove();
-                }, 2000);
+                }, 3000);
             });
         }
 
@@ -1155,6 +1311,7 @@
             try {
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
+                db = getFirestore(app);
                 initPdfJs();
 
                 onAuthStateChanged(auth, user => {
