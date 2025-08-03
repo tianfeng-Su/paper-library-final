@@ -37,76 +37,24 @@
         .loading-spinner { border: 3px solid #f3f4f6; border-top: 3px solid #4f46e5; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
+        .file-item { border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem; margin-bottom: 0.5rem; background-color: #f9fafb; }
+        .file-item.processing { border-color: #3b82f6; background-color: #eff6ff; }
+        .file-item.success { border-color: #10b981; background-color: #ecfdf5; }
+        .file-item.error { border-color: #ef4444; background-color: #fef2f2; }
+
         /* PDF 预览优化 */
-        .pdf-preview-container {
-            width: 100%;
-            height: 80vh;
-            max-height: 800px;
-            border-radius: 0.5rem;
-            overflow: hidden;
-            background: #f8fafc;
-        }
-        
-        .pdf-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .pdf-controls {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .pdf-control-btn {
-            padding: 0.375rem 0.75rem;
-            background: #f3f4f6;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-        }
-        
-        .pdf-control-btn:hover {
-            background: #e5e7eb;
-        }
-        
-        .pdf-canvas-container {
-            flex: 1;
-            overflow: auto;
-            display: flex;
-            flex-direction: column; /* 让canvas垂直排列 */
-            align-items: center;
-            padding: 1rem;
-        }
-        
-        .pdf-canvas {
-            max-width: 100%;
-            height: auto;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border-radius: 0.25rem;
-        }
+        .pdf-preview-container { width: 100%; height: 80vh; max-height: 800px; border-radius: 0.5rem; overflow: hidden; background: #f8fafc; }
+        .pdf-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: #ffffff; border-bottom: 1px solid #e5e7eb; }
+        .pdf-controls { display: flex; align-items: center; gap: 0.5rem; }
+        .pdf-control-btn { padding: 0.375rem 0.75rem; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 0.375rem; cursor: pointer; font-size: 0.875rem; transition: all 0.2s; }
+        .pdf-control-btn:hover { background: #e5e7eb; }
+        .pdf-canvas-container { flex: 1; overflow: auto; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .pdf-canvas { max-width: 100%; height: auto; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-radius: 0.25rem; }
         
         /* 上传模态框美化 */
-        .upload-form-container {
-            background-color: #ffffff;
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-        }
+        .upload-form-container { background-color: #ffffff; border-radius: 0.5rem; padding: 1.5rem; }
         .upload-form-container label { color: #374151; font-weight: 500; }
-        .upload-area {
-            border: 2px dashed #d1d5db;
-            border-radius: 0.75rem;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            background: #f9fafb;
-        }
+        .upload-area { border: 2px dashed #d1d5db; border-radius: 0.75rem; padding: 2rem; text-align: center; transition: all 0.3s ease; background: #f9fafb; }
         .upload-area.dragover { border-color: #4f46e5; background: #eef2ff; }
         .upload-icon { width: 3rem; height: 3rem; margin: 0 auto 1rem; }
         .file-details { color: #374151; }
@@ -118,22 +66,15 @@
 
     <div class="main-container">
         <header class="flex justify-between items-center mb-6 px-2">
-            <a href="/" class="flex items-center gap-3 cursor-pointer">
-                <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                <h1 class="text-2xl font-bold text-gray-800">论文知识中枢</h1>
-            </a>
+            <a href="/" class="flex items-center gap-3 cursor-pointer"><svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg><h1 class="text-2xl font-bold text-gray-800">论文知识中枢</h1></a>
             <div class="flex items-center gap-4">
                 <button id="upload-button" class="btn-primary hidden">上传论文</button>
                 <button id="batch-upload-button" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-md hidden">批量上传</button>
-                <div id="login-trigger" class="cursor-pointer font-semibold text-gray-600 hover:text-indigo-600">
-                    <span id="login-status-text">管理员登录</span>
-                </div>
+                <div id="login-trigger" class="cursor-pointer font-semibold text-gray-600 hover:text-indigo-600"><span id="login-status-text">管理员登录</span></div>
             </div>
         </header>
         
-        <div class="search-container mb-8">
-            <div class="relative"><input type="search" id="search-input" placeholder="搜索论文标题、作者或关键词..." class="w-full bg-gray-100 border-gray-300 rounded-md py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div></div>
-        </div>
+        <div class="search-container mb-8"><div class="relative"><input type="search" id="search-input" placeholder="搜索论文标题、作者或关键词..." class="w-full bg-gray-100 border-gray-300 rounded-md py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div></div></div>
         
         <section id="leaderboard-section" class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="info-card"><h3 class="font-bold text-gray-800 mb-4">最新上传</h3><ul id="upload-status-list" class="space-y-3 text-sm text-gray-600"></ul></div>
@@ -162,27 +103,18 @@
             appId: "1:390588624848:web:ab43e1e7b8aa6ccd06d3d5",
         };
 
-        let auth;
-        let db;
-        let lastVisible = null;
-        let isLoading = false;
-        let allPapersLoaded = false;
+        let auth, db, lastVisible = null, isLoading = false, allPapersLoaded = false;
         const PAPERS_PER_PAGE = 10;
         let currentPapers = [];
 
         function initPdfJs() {
-            if (window.pdfjsLib) {
-                window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-            } else {
-                setTimeout(initPdfJs, 1000);
-            }
+            if (window.pdfjsLib) window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         }
 
         async function getSignedUrlForAction(fileName, action) {
             try {
-                const method = 'GET';
                 const disposition = action === 'download' ? 'attachment' : 'inline';
-                const apiUrl = `/api/generate-upload-url?name=${encodeURIComponent(fileName)}&method=${method}&disposition=${disposition}`;
+                const apiUrl = `/api/generate-upload-url?name=${encodeURIComponent(fileName)}&method=GET&disposition=${disposition}`;
                 const response = await fetch(apiUrl);
                 if (!response.ok) throw new Error(`API请求失败 (${response.status})`);
                 const data = await response.json();
@@ -202,25 +134,18 @@
         }
 
         function updateUploadProgress(percentage, statusText = '') {
-            const progressFill = document.getElementById('upload-progress-fill');
-            const percentageSpan = document.getElementById('upload-percentage');
-            const statusDiv = document.getElementById('upload-status');
-            if (progressFill && percentageSpan) {
-                const p = Math.min(percentage, 100);
-                progressFill.style.width = p + '%';
-                percentageSpan.textContent = Math.round(p) + '%';
-            }
-            if(statusDiv && statusText) { statusDiv.textContent = statusText; }
+            const p = Math.min(percentage, 100);
+            document.getElementById('upload-progress-fill').style.width = p + '%';
+            document.getElementById('upload-percentage').textContent = Math.round(p) + '%';
+            if (statusText) document.getElementById('upload-status').textContent = statusText;
         }
 
         async function handleUploadSubmit(e, selectedFile) {
             e.preventDefault();
             const validationErrors = validateFile(selectedFile);
             if (validationErrors.length > 0) { alert('文件验证失败:\n' + validationErrors.join('\n')); return; }
-            const formEl = e.target;
-            const form = new FormData(formEl);
-            const title = form.get('title').trim();
-            const authors = form.get('authors').trim();
+            const form = new FormData(e.target);
+            const title = form.get('title').trim(), authors = form.get('authors').trim();
             if (!title || !authors) { alert('请填写标题和作者信息'); return; }
             document.getElementById('upload-form').classList.add('hidden');
             document.getElementById('upload-progress').classList.remove('hidden');
@@ -237,33 +162,21 @@
                         const response = JSON.parse(xhr.responseText);
                         updateUploadProgress(95, '正在保存论文信息...');
                         const paperData = {
-                            title: title,
-                            authors: authors.split(/[,，]/).map(name => name.trim()).filter(Boolean),
-                            keywords: (form.get('keywords') || '').split(/[,，]/).map(kw => kw.trim()).filter(Boolean),
-                            summary: '',
-                            fileUrl: response.fileUrl,
-                            fileName: selectedFile.name,
-                            uniquePath: response.uniquePath,
-                            fileSize: selectedFile.size,
-                            fileType: 'PDF',
-                            uploadDate: serverTimestamp(),
-                            previewCount: 0,
-                            downloadCount: 0,
+                            title, authors: authors.split(/[,，]/).map(n => n.trim()).filter(Boolean),
+                            keywords: (form.get('keywords') || '').split(/[,，]/).map(k => k.trim()).filter(Boolean),
+                            summary: '', fileUrl: response.fileUrl, fileName: selectedFile.name, uniquePath: response.uniquePath,
+                            fileSize: selectedFile.size, fileType: 'PDF', uploadDate: serverTimestamp(), previewCount: 0, downloadCount: 0,
                         };
                         await addDoc(collection(db, 'papers'), paperData);
                         updateUploadProgress(100, '上传完成！');
                         setTimeout(() => {
                             alert('论文上传成功！');
-                            const modal = document.querySelector('.modal-backdrop');
-                            if (modal) modal.remove();
+                            document.querySelector('.modal-backdrop')?.remove();
                             document.getElementById('paper-list').innerHTML = '';
-                            fetchAndRenderPapers();
-                            updateLeaderboards();
+                            lastVisible = null; allPapersLoaded = false;
+                            fetchAndRenderPapers(); updateLeaderboards();
                         }, 1000);
-                    } else {
-                        const errorText = xhr.responseText ? JSON.parse(xhr.responseText).error : `服务器错误: ${xhr.status}`;
-                        throw new Error(errorText);
-                    }
+                    } else { throw new Error(xhr.responseText ? JSON.parse(xhr.responseText).error : `服务器错误 ${xhr.status}`); }
                 });
                 xhr.addEventListener('error', () => { throw new Error('上传时发生网络错误'); });
                 xhr.send(uploadFormData);
@@ -279,68 +192,41 @@
         }
         
         async function previewPdfWithPdfJs(fileName, paperId) {
+            if (!fileName) { alert("文件路径无效，无法预览。"); return; }
             try {
                 await updatePreviewCount(paperId);
                 const pdfUrl = await getSignedUrlForAction(fileName, 'preview');
                 if (!pdfUrl) return;
-                const content = `
-                    <div class="p-0">
-                        <div class="flex justify-between items-center p-4 border-b"><h2 class="text-xl font-bold text-gray-800 truncate pr-4">PDF预览 - ${fileName}</h2><button class="btn-close-modal text-gray-400 hover:text-gray-800 text-2xl flex-shrink-0">×</button></div>
-                        <div class="pdf-preview-container flex flex-col">
-                            <div class="pdf-toolbar"><div class="pdf-controls"><span id="page-info" class="text-sm text-gray-600 px-2"></span></div><div class="pdf-controls"><button id="zoom-out" class="pdf-control-btn">缩小</button><span id="zoom-info" class="text-sm text-gray-600 px-2">100%</span><button id="zoom-in" class="pdf-control-btn">放大</button></div><div><a href="${pdfUrl}" download="${fileName}" class="pdf-control-btn bg-indigo-600 text-white hover:bg-indigo-700">下载</a></div></div>
-                            <div id="pdf-canvas-container" class="pdf-canvas-container"><div id="pdf-loading" class="flex flex-col items-center justify-center py-12"><div class="loading-spinner mb-4"></div><p class="text-gray-600">正在加载PDF...</p></div></div>
-                        </div>
-                    </div>`;
+                const content = `<div class="p-0"><div class="flex justify-between items-center p-4 border-b"><h2 class="text-xl font-bold text-gray-800 truncate pr-4">PDF预览 - ${fileName.split('/').pop()}</h2><button class="btn-close-modal text-gray-400 hover:text-gray-800 text-2xl flex-shrink-0">×</button></div><div class="pdf-preview-container flex flex-col"><div class="pdf-toolbar"><div class="pdf-controls"><span id="page-info" class="text-sm text-gray-600 px-2"></span></div><div class="pdf-controls"><button id="zoom-out" class="pdf-control-btn">缩小</button><span id="zoom-info" class="text-sm text-gray-600 px-2">100%</span><button id="zoom-in" class="pdf-control-btn">放大</button></div><div><a href="${pdfUrl}" download="${fileName.split('/').pop()}" class="pdf-control-btn bg-indigo-600 text-white hover:bg-indigo-700">下载</a></div></div><div id="pdf-canvas-container" class="pdf-canvas-container"><div id="pdf-loading" class="flex flex-col items-center justify-center py-12"><div class="loading-spinner mb-4"></div><p class="text-gray-600">正在加载PDF...</p></div></div></div></div>`;
                 showModal('pdf-preview-modal', content, 'max-w-4xl');
                 let scale = 1.0;
-                const loadingDiv = document.getElementById('pdf-loading'), container = document.getElementById('pdf-canvas-container'), pageInfo = document.getElementById('page-info'), zoomInfo = document.getElementById('zoom-info');
+                const container = document.getElementById('pdf-canvas-container'), pageInfo = document.getElementById('page-info'), zoomInfo = document.getElementById('zoom-info');
                 const pdfDoc = await window.pdfjsLib.getDocument(pdfUrl).promise;
-                loadingDiv.classList.add('hidden');
+                container.innerHTML = '';
                 pageInfo.textContent = `共 ${pdfDoc.numPages} 页`;
                 const renderAllPages = async () => {
                     container.innerHTML = '';
                     zoomInfo.textContent = `${Math.round(scale * 100)}%`;
                     for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
                         const page = await pdfDoc.getPage(pageNum);
-                        const viewport = page.getViewport({ scale: scale });
+                        const viewport = page.getViewport({ scale });
                         const canvas = document.createElement('canvas');
                         canvas.className = 'pdf-canvas';
                         canvas.style.marginBottom = '1rem';
-                        const ctx = canvas.getContext('2d');
                         canvas.height = viewport.height;
                         canvas.width = viewport.width;
                         container.appendChild(canvas);
-                        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+                        await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
                     }
                 };
                 renderAllPages();
                 document.getElementById('zoom-in').addEventListener('click', () => { scale += 0.25; renderAllPages(); });
                 document.getElementById('zoom-out').addEventListener('click', () => { if (scale > 0.5) { scale -= 0.25; renderAllPages(); } });
-            } catch (error) {
-                alert(`预览失败: ${error.message}`);
-            }
+            } catch (error) { alert(`预览失败: ${error.message}`); }
         }
         
         function showUploadModal() {
-            const content = `
-                <div class="p-0 rounded-lg overflow-hidden"><div class="upload-form-container">
-                    <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-gray-800">上传论文</h2><button class="btn-close-modal text-gray-400 hover:text-gray-800 text-2xl">×</button></div>
-                    <div class="upload-area" id="upload-area">
-                        <svg class="upload-icon text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                        <h3 class="text-lg font-semibold text-gray-700 mb-2">拖拽或点击选择文件</h3><p class="text-sm text-gray-500 mb-4">支持PDF, 最大50MB</p><input type="file" id="file-input" accept=".pdf" class="hidden"><button id="select-file-btn" class="btn-primary">选择文件</button>
-                    </div>
-                    <div id="file-info" class="hidden mt-4 p-4 bg-gray-50 rounded-lg"><h4 class="font-semibold mb-2 text-gray-700">文件信息</h4><div id="file-details" class="file-details"></div></div>
-                    <form id="upload-form" class="hidden mt-6 space-y-4">
-                        <div><label class="block text-sm font-medium">论文标题 *</label><input type="text" name="title" required class="form-input w-full"></div>
-                        <div><label class="block text-sm font-medium">作者 *</label><input type="text" name="authors" required class="form-input w-full" placeholder="多个作者用逗号分隔"></div>
-                        <div><label class="block text-sm font-medium">关键词</label><input type="text" name="keywords" class="form-input w-full" placeholder="多个关键词用逗号分隔"></div>
-                        <div class="flex gap-4"><button type="button" class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md" onclick="this.closest('.modal-backdrop').remove()">取消</button><button type="submit" class="flex-1 btn-primary py-2 px-4 rounded-md">开始上传</button></div>
-                    </form>
-                    <div id="upload-progress" class="hidden mt-6">
-                        <div class="flex justify-between items-center mb-2"><span class="text-sm font-medium text-gray-700">上传进度</span><span id="upload-percentage" class="text-sm text-gray-600">0%</span></div>
-                        <div class="progress-bar"><div id="upload-progress-fill" class="progress-fill" style="width: 0%"></div></div><div id="upload-status" class="mt-2 text-sm text-gray-600"></div>
-                    </div>
-                </div></div>`;
+            const content = `<div class="p-0 rounded-lg overflow-hidden"><div class="upload-form-container"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-gray-800">上传论文</h2><button class="btn-close-modal text-gray-400 hover:text-gray-800 text-2xl">×</button></div><div class="upload-area" id="upload-area"><svg class="upload-icon text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg><h3 class="text-lg font-semibold text-gray-700 mb-2">拖拽或点击选择文件</h3><p class="text-sm text-gray-500 mb-4">支持PDF, 最大50MB</p><input type="file" id="file-input" accept=".pdf" class="hidden"><button id="select-file-btn" class="btn-primary">选择文件</button></div><div id="file-info" class="hidden mt-4 p-4 bg-gray-50 rounded-lg"><h4 class="font-semibold mb-2 text-gray-700">文件信息</h4><div id="file-details" class="file-details"></div></div><form id="upload-form" class="hidden mt-6 space-y-4"><div><label class="block text-sm font-medium">论文标题 *</label><input type="text" name="title" required class="form-input w-full"></div><div><label class="block text-sm font-medium">作者 *</label><input type="text" name="authors" required class="form-input w-full" placeholder="多个作者用逗号分隔"></div><div><label class="block text-sm font-medium">关键词</label><input type="text" name="keywords" class="form-input w-full" placeholder="多个关键词用逗号分隔"></div><div class="flex gap-4"><button type="button" class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md" onclick="this.closest('.modal-backdrop').remove()">取消</button><button type="submit" class="flex-1 btn-primary py-2 px-4 rounded-md">开始上传</button></div></form><div id="upload-progress" class="hidden mt-6"><div class="flex justify-between items-center mb-2"><span class="text-sm font-medium text-gray-700">上传进度</span><span id="upload-percentage" class="text-sm text-gray-600">0%</span></div><div class="progress-bar"><div id="upload-progress-fill" class="progress-fill" style="width: 0%"></div></div><div id="upload-status" class="mt-2 text-sm text-gray-600"></div></div></div></div>`;
             const modal = showModal('upload-modal', content, 'max-w-lg');
             const uploadArea = document.getElementById('upload-area'), fileInput = document.getElementById('file-input'), selectFileBtn = document.getElementById('select-file-btn'), fileInfo = document.getElementById('file-info'), uploadForm = document.getElementById('upload-form');
             let selectedFile = null;
@@ -360,22 +246,59 @@
             uploadForm.addEventListener('submit', (e) => handleUploadSubmit(e, selectedFile));
         }
 
+        function showBatchUploadModal() {
+            const content = `<div class="p-0 rounded-lg overflow-hidden"><div class="upload-form-container"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-gray-800">批量上传论文</h2><button class="btn-close-modal text-gray-400 hover:text-gray-800 text-2xl">×</button></div><div class="upload-area" id="batch-upload-area"><svg class="upload-icon text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 12l2 2 4-4"></path></svg><h3 class="text-lg font-semibold text-gray-700 mb-2">选择多个PDF文件</h3><p class="text-sm text-gray-500 mb-4">每个文件最大50MB</p><input type="file" id="batch-file-input" accept=".pdf" multiple class="hidden"><button id="batch-select-file-btn" class="btn-primary">选择文件</button></div><div id="batch-file-list" class="hidden mt-4 max-h-60 overflow-y-auto"></div><div id="batch-upload-controls" class="hidden mt-6 flex gap-4"><button type="button" class="flex-1 bg-gray-500 text-white py-2 rounded-md" onclick="this.closest('.modal-backdrop').remove()">取消</button><button id="start-batch-upload" class="flex-1 btn-primary py-2 rounded-md">开始批量上传</button></div></div></div>`;
+            const modal = showModal('batch-upload-modal', content, 'max-w-2xl');
+            const batchFileInput = document.getElementById('batch-file-input'), batchFileList = document.getElementById('batch-file-list');
+            let selectedFiles = [];
+            document.getElementById('batch-select-file-btn').addEventListener('click', () => batchFileInput.click());
+            batchFileInput.addEventListener('change', (e) => {
+                selectedFiles = Array.from(e.target.files).filter(file => validateFile(file).length === 0);
+                if (selectedFiles.length === 0) return;
+                batchFileList.innerHTML = selectedFiles.map((file, i) => `<div class="file-item flex justify-between items-center" id="batch-file-${i}"><div><p class="font-medium text-gray-800">${file.name}</p><p class="text-sm text-gray-500">${formatBytes(file.size)}</p></div><div class="upload-status text-sm text-gray-600">等待上传</div></div>`).join('');
+                batchFileList.classList.remove('hidden'); document.getElementById('batch-upload-controls').classList.remove('hidden'); document.getElementById('batch-upload-area').classList.add('hidden');
+            });
+            document.getElementById('start-batch-upload').addEventListener('click', async () => {
+                const startBtn = document.getElementById('start-batch-upload');
+                startBtn.disabled = true; startBtn.textContent = '上传中...';
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    const file = selectedFiles[i];
+                    const fileItem = document.getElementById(`batch-file-${i}`), statusSpan = fileItem.querySelector('.upload-status');
+                    try {
+                        statusSpan.textContent = '上传中...'; fileItem.classList.add('processing');
+                        const formData = new FormData(); formData.append('paper', file);
+                        const response = await fetch('/api/upload', { method: 'POST', body: formData });
+                        if (!response.ok) throw new Error(`服务器错误 ${response.status}`);
+                        const uploadResult = await response.json();
+                        await addDoc(collection(db, 'papers'), {
+                            title: file.name.replace(/\.pdf$/i, ''), authors: ['批量上传'], keywords: [], summary: '',
+                            fileUrl: uploadResult.fileUrl, fileName: file.name, uniquePath: uploadResult.uniquePath,
+                            fileSize: file.size, fileType: 'PDF', uploadDate: serverTimestamp(), previewCount: 0, downloadCount: 0,
+                        });
+                        statusSpan.textContent = '成功'; fileItem.classList.replace('processing', 'success');
+                    } catch (error) { statusSpan.textContent = `失败`; fileItem.classList.replace('processing', 'error'); }
+                }
+                startBtn.textContent = '批量上传完成';
+                setTimeout(() => { modal.remove(); document.getElementById('paper-list').innerHTML = ''; fetchAndRenderPapers(); updateLeaderboards(); }, 2000);
+            });
+        }
+        
         async function fetchAndRenderPapers(searchTerm = '') {
             if (isLoading) return; isLoading = true;
             const paperList = document.getElementById('paper-list');
             try {
                 let apiUrl = `/api/papers?limitNum=${PAPERS_PER_PAGE}`;
-                if (searchTerm) { apiUrl += `&searchTerm=${encodeURIComponent(searchTerm)}`; currentPapers = []; } 
+                if (searchTerm) { apiUrl += `&searchTerm=${encodeURIComponent(searchTerm)}`; currentPapers = []; }
                 else if (lastVisible) { apiUrl += `&startAfterId=${lastVisible}`; }
                 const response = await fetch(apiUrl);
                 if (!response.ok) throw new Error(`API 请求失败`);
                 const data = await response.json();
-                const newPaperDocs = data.papers.map(p => ({ id: p.id, data: () => p }));
-                currentPapers.push(...newPaperDocs);
-                renderPapers(currentPapers, !!searchTerm);
-                if (data.papers.length < PAPERS_PER_PAGE) { allPapersLoaded = true; observer.disconnect(); } 
-                else { lastVisible = data.lastVisibleId; }
-            } catch (error) { paperList.innerHTML = `<p class="text-red-500 text-center py-8">❌ 加载失败: ${error.message}</p>`; } 
+                const newDocs = data.papers.map(p => ({ id: p.id, data: () => p }));
+                currentPapers = isSearchResult ? newDocs : [...currentPapers, ...newDocs];
+                renderPapers(currentPapers, isSearchResult);
+                if (data.papers.length < PAPERS_PER_PAGE) { allPapersLoaded = true; observer?.disconnect(); }
+                else { lastVisible = data.lastVisibleId; createLoadMoreObserver(); }
+            } catch (error) { paperList.innerHTML = `<p class="text-red-500 text-center py-8">❌ 加载失败</p>`; }
             finally { isLoading = false; }
         }
 
@@ -383,34 +306,14 @@
             const paperList = document.getElementById('paper-list');
             const isAdmin = auth.currentUser;
             if (isSearchResult) paperList.innerHTML = '';
-            if (papers.length === 0) {
-                paperList.innerHTML = '<p class="text-gray-500 text-center py-8">无匹配结果。</p>';
-                return;
-            }
-            if (!isSearchResult && document.getElementById('paper-list').innerHTML === '<p class="text-gray-500 text-center py-8">无匹配结果。</p>') {
-                paperList.innerHTML = '';
-            }
-            
-            const papersHtml = papers.map(paperDoc => {
-                const data = paperDoc.data();
-                const year = data.uploadDate ? new Date(data.uploadDate).getFullYear() : 'N/A';
-                const deleteButtonHtml = isAdmin ? `<button class="btn-danger w-full py-2 px-3 rounded-md text-xs" data-action="delete" data-id="${paperDoc.id}" data-filename="${data.uniquePath}" data-title="${data.title}">删除</button>` : '';
-                return `
-                    <div class="paper-item" data-paper-id="${paperDoc.id}">
-                        <div class="flex-grow">
-                            <h2 class="text-lg font-bold text-gray-800 mb-2 paper-title-clickable" data-action="preview-pdf" data-id="${paperDoc.id}" data-filename="${data.uniquePath}">${data.title}</h2>
-                            <p class="text-sm text-gray-600">作者: ${(data.authors || []).join(', ')}</p>
-                            <p class="text-sm text-gray-500 mt-2">年份: ${year} | 下载: ${data.downloadCount || 0}</p>
-                        </div>
-                        <div class="flex flex-col justify-center items-center gap-3 w-24 flex-shrink-0">
-                             <button class="btn-primary w-full py-2 px-3 rounded-md text-xs" data-action="preview-pdf" data-id="${paperDoc.id}" data-filename="${data.uniquePath}">预览</button>
-                             <button class="bg-gray-600 text-white w-full py-2 px-3 rounded-md text-xs" data-action="download" data-id="${paperDoc.id}" data-filename="${data.uniquePath}">下载</button>
-                             ${deleteButtonHtml}
-                        </div>
-                    </div>`;
+            if (papers.length === 0) { paperList.innerHTML = '<p class="text-gray-500 text-center py-8">无匹配结果。</p>'; return; }
+            const papersHtml = papers.map(doc => {
+                const data = doc.data();
+                let filePath = data.uniquePath || (data.fileUrl ? new URL(data.fileUrl).pathname.substring(1) : data.fileName);
+                const deleteBtn = isAdmin ? `<button class="btn-danger w-full py-2 px-3 rounded-md text-xs" data-action="delete" data-id="${doc.id}" data-filename="${filePath}" data-title="${data.title}">删除</button>` : '';
+                return `<div class="paper-item" data-paper-id="${doc.id}"><div class="flex-grow"><h2 class="text-lg font-bold text-gray-800 mb-2">${data.title}</h2><p class="text-sm text-gray-600">作者: ${(data.authors || []).join(', ')}</p><p class="text-sm text-gray-500 mt-2">年份: ${data.uploadDate ? new Date(data.uploadDate).getFullYear() : 'N/A'} | 下载: ${data.downloadCount || 0}</p></div><div class="flex flex-col justify-center items-center gap-3 w-24 flex-shrink-0"><button class="btn-primary w-full py-2 px-3 rounded-md text-xs" data-action="preview-pdf" data-id="${doc.id}" data-filename="${filePath}">预览</button><button class="bg-gray-600 text-white w-full py-2 px-3 rounded-md text-xs" data-action="download" data-id="${doc.id}" data-filename="${filePath}">下载</button>${deleteBtn}</div></div>`;
             }).join('');
-            paperList.innerHTML += papersHtml;
-            createLoadMoreObserver();
+            paperList.innerHTML = papersHtml;
         }
 
         let observer;
@@ -419,29 +322,44 @@
             if (allPapersLoaded) return;
             const lastPaper = document.querySelector('#paper-list .paper-item:last-child');
             if (!lastPaper) return;
-            observer = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting && !isLoading) {
-                    fetchAndRenderPapers();
-                }
-            }, { threshold: 0.1 });
+            observer = new IntersectionObserver((entries) => { if (entries[0].isIntersecting && !isLoading) fetchAndRenderPapers(); }, { threshold: 0.1 });
             observer.observe(lastPaper);
         }
 
-        function formatBytes(bytes, d = 2) { if (!+bytes) return '0 Bytes'; const k = 1024, sizes = ["Bytes", "KB", "MB", "GB"], i = Math.floor(Math.log(bytes) / Math.log(k)); return `${parseFloat((bytes/Math.pow(k,i)).toFixed(d))} ${sizes[i]}`; }
+        function formatBytes(bytes, d = 2) { if (!+bytes) return '0 Bytes'; const k = 1024, s = ["B", "KB", "MB", "GB"], i = Math.floor(Math.log(bytes) / Math.log(k)); return `${parseFloat((bytes/Math.pow(k,i)).toFixed(d))} ${s[i]}`; }
 
-        async function updateLeaderboards() { /* ... */ }
-        async function updatePreviewCount(id) { /* ... */ }
-        async function updateDownloadCount(id) { /* ... */ }
-        function showLoginModal() { /* ... */ }
-        function showModal(id, c, w = 'max-w-lg') { const mC = document.getElementById('modal-container'), mW = document.createElement('div'); mW.id = id; mW.className = "fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50"; mW.innerHTML = `<div class="modal-content w-full ${w}">${c}</div>`; mC.appendChild(mW); mW.querySelector('.btn-close-modal').addEventListener('click', () => mW.remove()); return mW; }
+        async function updateLeaderboards() {
+            const render = (el, data, countField) => document.getElementById(el).innerHTML = data.length > 0 ? data.map(p => `<li class="truncate leaderboard-item" data-action="preview-pdf" data-id="${p.id}" data-filename="${p.uniquePath}">${p.title} ${countField ? `(${p[countField] || 0})` : ''}</li>`).join('') : '<li class="text-gray-400">暂无数据</li>';
+            try {
+                const response = await fetch('/api/papers?queryType=leaderboards');
+                const data = await response.json();
+                render('upload-status-list', data.recent);
+                render('preview-leaderboard-list', data.popularPreview, 'previewCount');
+                render('download-leaderboard-list', data.popularDownload, 'downloadCount');
+            } catch (e) { console.error("获取排行榜失败"); }
+        }
+        
+        async function updatePreviewCount(id) { /* 实现与Firestore交互以增加previewCount */ }
+        async function updateDownloadCount(id) { /* 实现与Firestore交互以增加downloadCount */ }
+
+        function showLoginModal() {
+            const c = `<div class="p-8"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-gray-800">管理员登录</h2><button class="btn-close-modal text-gray-400">×</button></div><form id="login-form" class="space-y-4"><input type="email" name="email" required placeholder="邮箱" class="form-input w-full"><input type="password" name="password" required placeholder="密码" class="form-input w-full"><p id="login-error-msg" class="text-red-500 text-sm"></p><button type="submit" class="w-full btn-primary py-3">登录</button></form></div>`;
+            showModal('login-modal', c);
+            document.getElementById('login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                try {
+                    await signInWithEmailAndPassword(auth, e.target.email.value, e.target.password.value);
+                    document.getElementById('login-modal').remove();
+                } catch (err) { document.getElementById('login-error-msg').textContent = "邮箱或密码错误"; }
+            });
+        }
+        
+        function showModal(id, c, w = 'max-w-lg') { const mC = document.getElementById('modal-container'), mW = document.createElement('div'); mW.id = id; mW.className = "fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50"; mW.innerHTML = `<div class="modal-content w-full ${w}">${c}</div>`; mC.appendChild(mW); mW.querySelector('.btn-close-modal').addEventListener('click', () => mW.remove()); }
         const debounce = (f, d) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => f(...a), d); }};
 
         document.addEventListener('DOMContentLoaded', () => {
             try {
-                const app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-                initPdfJs();
+                initializeApp(firebaseConfig); auth = getAuth(); db = getFirestore(); initPdfJs();
                 onAuthStateChanged(auth, user => {
                     const statusText = document.getElementById('login-status-text'), uploadBtn = document.getElementById('upload-button'), batchBtn = document.getElementById('batch-upload-button');
                     if (user) {
@@ -451,9 +369,9 @@
                         statusText.textContent = '管理员登录';
                         uploadBtn.classList.add('hidden'); batchBtn.classList.add('hidden');
                     }
-                    document.getElementById('paper-list').innerHTML = ''; currentPapers = []; fetchAndRenderPapers(); // Re-render to show/hide buttons
+                    document.getElementById('paper-list').innerHTML = ''; currentPapers = []; lastVisible = null; allPapersLoaded = false;
+                    fetchAndRenderPapers();
                 });
-                fetchAndRenderPapers();
                 updateLeaderboards();
             } catch (e) { document.getElementById('paper-list').innerHTML = `<p class="text-red-500 text-center py-8">❌ 页面初始化失败</p>`; }
 
@@ -461,38 +379,29 @@
                 const actionElement = e.target.closest('[data-action]');
                 if (actionElement) {
                     const { action, id, filename, title } = actionElement.dataset;
-                    switch (action) {
-                        case 'delete':
-                            if (!auth.currentUser) { alert("请先登录"); return; }
-                            if (!confirm(`确定要永久删除论文 "${title}" 吗？`)) return;
-                            try {
-                                actionElement.textContent = '删除中...'; actionElement.disabled = true;
-                                const token = await auth.currentUser.getIdToken();
-                                const response = await fetch('/api/delete-paper', {
-                                    method: 'DELETE',
-                                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                                    body: JSON.stringify({ id: id, fileName: filename })
-                                });
-                                if (!response.ok) { const err = await response.json(); throw new Error(err.error); }
-                                document.querySelector(`[data-paper-id="${id}"]`).remove();
-                                alert('删除成功！');
-                            } catch (err) {
-                                alert(`删除失败: ${err.message}`);
-                                actionElement.textContent = '删除'; actionElement.disabled = false;
-                            }
-                            break;
-                        case 'preview-pdf': await previewPdfWithPdfJs(filename, id); break;
-                        case 'download': await updateDownloadCount(id); const url = await getSignedUrlForAction(filename, 'download'); if(url) window.open(url); break;
-                    }
+                    if (action === 'delete') {
+                        if (!confirm(`确定要永久删除论文 "${title}" 吗？`)) return;
+                        try {
+                            actionElement.textContent = '删除中...'; actionElement.disabled = true;
+                            const token = await auth.currentUser.getIdToken();
+                            const res = await fetch('/api/delete-paper', {
+                                method: 'DELETE', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                body: JSON.stringify({ id, fileName: filename })
+                            });
+                            if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
+                            document.querySelector(`[data-paper-id="${id}"]`).remove();
+                        } catch (err) { alert(`删除失败: ${err.message}`); actionElement.textContent = '删除'; actionElement.disabled = false; }
+                    } else if (action === 'preview-pdf') await previewPdfWithPdfJs(filename, id);
+                    else if (action === 'download') { await updateDownloadCount(id); const url = await getSignedUrlForAction(filename, 'download'); if(url) window.open(url); }
                 }
                 if (e.target.closest('#login-trigger')) { if (auth.currentUser) signOut(auth); else showLoginModal(); }
                 if (e.target.closest('#upload-button')) showUploadModal();
-                if (e.target.closest('#batch-upload-button')) alert("批量上传功能待开发");
+                if (e.target.closest('#batch-upload-button')) showBatchUploadModal();
             });
 
             const handleSearch = debounce((term) => {
                 document.getElementById('leaderboard-section').style.display = term ? 'none' : 'grid';
-                lastVisible = null; allPapersLoaded = false; currentPapers = [];
+                lastVisible = null; allPapersLoaded = false; currentPapers = []; observer?.disconnect();
                 fetchAndRenderPapers(term);
             }, 500);
             document.getElementById('search-input').addEventListener('input', (e) => handleSearch(e.target.value.trim()));
