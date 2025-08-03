@@ -1,24 +1,23 @@
 {
-  "name": "paper-library",
+  "name": "pappershare-project",
   "version": "1.0.0",
-  "description": "论文知识中枢",
+  "description": "A paper sharing and management platform.",
   "main": "index.js",
   "scripts": {
-    "dev": "vercel dev",
-    "build": "echo 'No build step required'",
-    "start": "vercel dev"
+    "start": "echo 'No start script defined, this is a Vercel serverless project.' && exit 1",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [
+    "paper",
+    "share",
+    "vercel",
+    "oss"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
     "ali-oss": "^6.20.0",
-    "cors": "^2.8.5",
-    "firebase-admin": "^12.7.0",
-    "pdf-parse": "^1.1.1"
-  },
-  "devDependencies": {
-    "vercel": "^32.0.0"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "firebase": "^10.12.2",
+    "formidable": "^3.5.1"
   }
 }
