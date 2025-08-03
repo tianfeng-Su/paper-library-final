@@ -1,61 +1,121 @@
 // 文件: api/generate-upload-url.js
-// 请用以下全部代码替换您文件中的内容
+// 修复后的版本
 
 const OSS = require('ali-oss');
-const cors = require('cors')({ origin: true });
 
 // 初始化 OSS Client
-// 请确保您的环境变量已正确设置
 const client = new OSS({
   region: process.env.ALIYUN_OSS_REGION,
   accessKeyId: process.env.ALIYUN_ACCESS_KEY_ID,
   accessKeySecret: process.env.ALIYUN_ACCESS_KEY_SECRET,
   bucket: process.env.ALIYUN_OSS_BUCKET,
-  secure: true, // 使用 HTTPS
+  secure: true,
 });
 
-// 使用 Vercel Serverless Function 的标准导出格式
 module.exports = (req, res) => {
-  // 使用 cors 中间件处理跨域预检请求
-  cors(req, res, () => {
-    // 从请求的查询参数中获取文件名和文件类型
-    const { name, contentType } = req.query;
+  // 手动设置 CORS 头，确保兼容性
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    // 验证必需的参数是否存在
-    if (!name || !contentType) {
-      res.status(400).json({ error: '文件名 (name) 和文件类型 (contentType) 是必需的查询参数。' });
+  // 处理预检请求
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  // 只允许 GET 请求
+  if (req.method !== 'GET') {
+    res.status(405).json({ error: '仅支持 GET 请求' });
+    return;
+  }
+
+  try {
+    // 获取请求参数，支持多种参数格式
+    const { name, contentType, method = 'PUT', disposition } = req.query;
+
+    // 验证必需参数
+    if (!name) {
+      res.status(400).json({ error: '缺少必需的参数: name' });
       return;
     }
 
-    // 解码文件名以防中文乱码
+    // 解码文件名
     const decodedFileName = decodeURIComponent(name);
+    
+    // 生成唯一的文件路径，避免文件名冲突
+    const timestamp = Date.now();
+    const randomSuffix = Math.random().toString(36).substring(2, 8);
+    const uniqueFileName = `papers/${timestamp}-${randomSuffix}-${decodedFileName}`;
 
-    try {
+    console.log('生成签名URL - 文件名:', uniqueFileName);
+    console.log('请求参数:', { name, contentType, method, disposition });
+
+    if (method === 'PUT') {
+      // 上传操作
       const options = {
         method: 'PUT',
-        expires: 3600, // 签名有效期1小时
-        headers: {
-          // 关键：将从前端获取的 contentType 加入到签名头部
-          'Content-Type': contentType 
-        }
+        expires: 3600, // 1小时有效期
       };
 
-      // 使用包含正确 headers 的选项来生成签名 URL
-      const signedUrl = client.signatureUrl(decodedFileName, options);
+      // 如果提供了 contentType，添加到 headers
+      if (contentType) {
+        options.headers = {
+          'Content-Type': contentType
+        };
+      }
 
-      // 假设您的文件最终访问地址格式如下
-      // 请确保 process.env.ALIYUN_OSS_BUCKET 的值是正确的
-      const fileUrl = `https://${process.env.ALIYUN_OSS_BUCKET}.${process.env.ALIYUN_OSS_REGION}.aliyuncs.com/${decodedFileName}`;
+      const signedUrl = client.signatureUrl(uniqueFileName, options);
+      
+      // 生成文件的最终访问URL
+      const fileUrl = `https://${process.env.ALIYUN_OSS_BUCKET}.${process.env.ALIYUN_OSS_REGION}.aliyuncs.com/${uniqueFileName}`;
 
-      // 将签名后的上传 URL 和最终文件访问 URL 返回给前端
+      console.log('生成的上传URL:', signedUrl);
+      console.log('文件访问URL:', fileUrl);
+
       res.status(200).json({
         uploadUrl: signedUrl,
-        fileUrl: fileUrl
+        fileUrl: fileUrl,
+        fileName: decodedFileName,
+        uniquePath: uniqueFileName
       });
 
-    } catch (error) {
-      console.error('生成签名 URL 失败:', error);
-      res.status(500).json({ error: '生成签名 URL 时发生服务器内部错误。' });
+    } else if (method === 'GET') {
+      // 下载/预览操作
+      const options = {
+        method: 'GET',
+        expires: 3600,
+      };
+
+      // 如果指定了 disposition，设置下载方式
+      if (disposition) {
+        options.response = {
+          'content-disposition': `${disposition}; filename="${encodeURIComponent(decodedFileName)}"`
+        };
+      }
+
+      const signedUrl = client.signatureUrl(uniqueFileName, options);
+
+      res.status(200).json({
+        uploadUrl: signedUrl, // 保持字段名一致
+        url: signedUrl
+      });
+
+    } else {
+      res.status(400).json({ error: '不支持的操作方法' });
     }
-  });
+
+  } catch (error) {
+    console.error('生成签名URL失败:', error);
+    console.error('错误详情:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
+    res.status(500).json({ 
+      error: '生成签名URL时发生服务器错误',
+      details: process.env.NODE_ENV === 'development' ? error.message : '内部服务器错误'
+    });
+  }
 };
