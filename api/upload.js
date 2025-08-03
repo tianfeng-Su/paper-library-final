@@ -1,9 +1,9 @@
 // 文件: api/upload.js
-// 这是全新的服务器中转上传API
+// 【已修复】: 将 require 改为 import，统一使用ESM语法
 
-const OSS = require('ali-oss');
-const formidable = require('formidable');
-const fs = require('fs');
+import OSS from 'ali-oss';
+import formidable from 'formidable';
+import fs from 'fs';
 
 // 初始化 OSS Client
 const client = new OSS({
@@ -34,7 +34,7 @@ export default async (req, res) => {
     const [fields, files] = await form.parse(req);
     
     const paperFile = files.paper; // 'paper' 是我们前端上传时使用的字段名
-    if (!paperFile) {
+    if (!paperFile || paperFile.length === 0) {
       return res.status(400).json({ error: '没有找到上传的文件' });
     }
 
@@ -50,11 +50,12 @@ export default async (req, res) => {
     // 从临时路径上传文件到OSS
     const result = await client.put(uniqueFileName, filePath);
     
-    // 上传成功后，可以选择删除本地的临时文件
+    // 上传成功后，删除本地的临时文件
     fs.unlinkSync(filePath);
 
     // 返回成功信息和文件的最终访问URL
-    const fileUrl = result.url.replace('http://', 'https://'); // 确保返回https链接
+    // result.url 默认是 http，我们强制替换为 https
+    const fileUrl = result.url.replace(/^http:/, 'https');
 
     res.status(200).json({
       message: '文件上传成功',
@@ -68,5 +69,3 @@ export default async (req, res) => {
       error: '文件上传失败', 
       details: error.message 
     });
-  }
-};
