@@ -1,0 +1,23 @@
+{
+  "name": "pappershare-project",
+  "version": "1.0.0",
+  "description": "A paper sharing and management platform.",
+  "main": "index.js",
+  "scripts": {
+    "start": "echo 'No start script defined, this is a Vercel serverless project.' && exit 1",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "paper",
+    "share",
+    "vercel",
+    "oss"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "ali-oss": "^6.20.0",
+    "firebase": "^10.12.2",
+    "formidable": "^3.5.1"
+  }
+}
