@@ -1,5 +1,5 @@
 // 文件: api/generate-upload-url.js
-// 修复后的版本
+// 修复后的最终版本
 
 const OSS = require('ali-oss');
 
@@ -32,7 +32,9 @@ module.exports = (req, res) => {
 
   try {
     // 获取请求参数，支持多种参数格式
-    const { name, contentType, method = 'PUT', disposition } = req.query;
+    const { name, method = 'PUT', disposition } = req.query;
+    // 从请求中获取contentType，并提供一个稳定的默认值
+    const contentType = req.query.contentType || 'application/pdf';
 
     // 验证必需参数
     if (!name) {
@@ -56,14 +58,12 @@ module.exports = (req, res) => {
       const options = {
         method: 'PUT',
         expires: 3600, // 1小时有效期
-      };
-
-      // 如果提供了 contentType，添加到 headers
-      if (contentType) {
-        options.headers = {
+        // 【关键修复】: 始终为PUT操作的签名URL指定Content-Type
+        // 这要求客户端在上传时必须提供完全相同的Content-Type头
+        headers: {
           'Content-Type': contentType
-        };
-      }
+        }
+      };
 
       const signedUrl = client.signatureUrl(uniqueFileName, options);
       
