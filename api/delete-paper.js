@@ -1,64 +1,68 @@
-// 文件: api/delete-paper.js
-// 全新的后端删除API
+// /api/delete-paper.js
+const admin = require('firebase-admin');
+const OSS = require('ali-oss');
 
-import admin from 'firebase-admin';
-import OSS from 'ali-oss';
-
-// --- 初始化 Firebase Admin SDK (代码与 papers.js 中相同) ---
-try {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-  if (!admin.apps.length) {
-    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+function initAdmin() {
+  if (admin.apps.length) return admin;
+  const projectId   = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  let privateKey    = process.env.FIREBASE_PRIVATE_KEY;
+  if (!projectId || !clientEmail || !privateKey) {
+    throw new Error('Missing Firebase Admin credentials');
   }
-} catch (error) { console.error('Firebase Admin 初始化失败:', error); }
+  privateKey = privateKey.replace(/\\n/g, '\n');
+  admin.initializeApp({
+    credential: admin.credential.cert({ projectId, clientEmail, privateKey }),
+  });
+  return admin;
+}
 
-const db = admin.firestore();
-
-// --- 初始化 OSS Client (代码与 upload.js 中类似) ---
-const client = new OSS({
-  endpoint: `oss-cn-hongkong.aliyuncs.com`,
-  accessKeyId: process.env.ALIYUN_ACCESS_KEY_ID,
-  accessKeySecret: process.env.ALIYUN_ACCESS_KEY_SECRET,
-  bucket: process.env.ALIYUN_OSS_BUCKET,
+const oss = new OSS({
+  region: process.env.OSS_REGION,
+  accessKeyId: process.env.OSS_ACCESS_KEY_ID,
+  accessKeySecret: process.env.OSS_ACCESS_KEY_SECRET,
+  bucket: process.env.OSS_BUCKET,
   secure: true,
 });
 
+function allowed(email) {
+  const list = (process.env.ADMIN_EMAILS || '')
+    .split(',')
+    .map(s => s.trim().toLowerCase())
+    .filter(Boolean);
+  return list.length ? list.includes((email || '').toLowerCase()) : true; // 没配白名单就放行所有已登录用户
+}
 
-// --- API 主处理函数 ---
-export default async (req, res) => {
-  // 1. 只允许 DELETE 请求
-  if (req.method !== 'DELETE') {
-    return res.status(405).json({ error: '仅支持 DELETE 请求' });
-  }
+module.exports = async (req, res) => {
+  if (req.method !== 'DELETE') return res.status(405).json({ error: 'Method Not Allowed' });
 
   try {
-    // 2. 验证管理员身份 (安全 crucial)
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: '未授权：缺少Token' });
-    }
-    const idToken = authHeader.split('Bearer ')[1];
-    await admin.auth().verifyIdToken(idToken); // 如果token无效，这里会抛出错误
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+    if (!token) return res.status(401).json({ error: 'Missing token' });
 
-    // 3. 获取要删除的数据
-    const { id, fileName } = req.body;
-    if (!id || !fileName) {
-      return res.status(400).json({ error: '缺少必需的参数: id 和 fileName' });
+    const decoded = await initAdmin().auth().verifyIdToken(token);
+    if (!decoded?.email || !allowed(decoded.email)) {
+      return res.status(403).json({ error: 'No permission' });
     }
 
-    // 4. 并发执行删除操作
-    const deleteFromOssPromise = client.delete(fileName);
-    const deleteFromFirestorePromise = db.collection('papers').doc(id).delete();
+    const { id, fileName } = req.body || {};
+    if (!id) return res.status(400).json({ error: 'Missing id' });
 
-    await Promise.all([deleteFromOssPromise, deleteFromFirestorePromise]);
+    // 先删 Firestore 文档（即使不存在也忽略）
+    await initAdmin().firestore().collection('papers').doc(id).delete().catch(() => {});
 
-    res.status(200).json({ message: '论文删除成功' });
-
-  } catch (error) {
-    console.error('删除论文失败:', error);
-    if (error.code === 'auth/id-token-expired' || error.code === 'auth/argument-error') {
-      return res.status(403).json({ error: '认证失败，请重新登录' });
+    // 再尝试删 OSS 对象（可选）
+    if (fileName) {
+      const key = String(fileName).replace(/^\/+/, '');
+      try { await oss.delete(key); } catch (e) {
+        if (e?.code !== 'NoSuchKey') console.warn('[OSS delete]', e);
+      }
     }
-    res.status(500).json({ error: '服务器内部错误', details: error.message });
+
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[delete-paper]', e);
+    res.status(500).json({ error: 'Delete failed' });
   }
 };
