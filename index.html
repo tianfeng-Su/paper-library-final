@@ -69,7 +69,10 @@
 
     <div class="main-container">
         <header class="flex justify-between items-center mb-6 px-2">
-            <a href="/" class="flex items-center gap-3 cursor-pointer"><svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg><h1 class="text-2xl font-bold text-gray-800">论文知识中枢</h1></a>
+            <a href="/" class="flex items-center gap-3 cursor-pointer">
+                <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                <h1 class="text-2xl font-bold text-gray-800">论文知识中枢</h1>
+            </a>
             <div class="flex items-center gap-4">
                 <button id="upload-button" class="btn-primary hidden">上传论文</button>
                 <button id="batch-upload-button" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-md hidden">批量上传</button>
@@ -77,7 +80,14 @@
             </div>
         </header>
         
-        <div class="search-container mb-8"><div class="relative"><input type="search" id="search-input" placeholder="搜索论文标题、作者或关键词..." class="w-full bg-gray-100 border-gray-300 rounded-md py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg class="text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div></div></div>
+        <div class="search-container mb-8">
+            <div class="relative">
+                <input type="search" id="search-input" placeholder="搜索论文标题、作者或关键词..." class="w-full bg-gray-100 border-gray-300 rounded-md py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+            </div>
+        </div>
         
         <section id="leaderboard-section" class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="info-card"><h3 class="font-bold text-gray-800 mb-4">最新上传</h3><ul id="upload-status-list" class="space-y-3 text-sm text-gray-600"></ul></div>
@@ -115,21 +125,32 @@
             if (window.pdfjsLib) window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         }
 
-        async function getSignedUrlForAction(fileName, action) {
+        /** ---------- 路径/编码修复工具（避免中文名 NoSuchKey 和 CORS） ---------- **/
+        function normalizeKey(input) {
+            if (!input) return '';
+            let key = String(input);
+            // 如果给的是完整 URL，取 path
             try {
-                const disposition = action === 'download' ? 'attachment' : 'inline';
-                const apiUrl = `/api/generate-upload-url?name=${encodeURIComponent(fileName)}&method=GET&disposition=${disposition}`;
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error || `API请求失败 (${response.status})`);
+                if (/^https?:\/\//i.test(key)) {
+                    const u = new URL(key);
+                    key = u.pathname.replace(/^\\//, '');
                 }
-                const data = await response.json();
-                return data.url;
-            } catch (error) {
-                console.error(`获取签名URL失败 for ${action}:`, error);
-                throw error; // 重新抛出错误，让调用者处理
-            }
+            } catch {}
+            // 去掉开头的 /
+            key = key.replace(/^\\/+/, '');
+            // 先解码一次，避免出现 %25（二次编码）
+            try { key = decodeURIComponent(key); } catch {}
+            return key;
+        }
+        // 仅对每段路径做一次编码（保留斜杠）
+        function encodeKeyForQuery(key) {
+            return normalizeKey(key).split('/').map(seg => encodeURIComponent(seg)).join('/');
+        }
+        // 通过同源代理拿文件，彻底绕开 OSS CORS
+        function getSignedUrlForAction(fileName, action) {
+            const disposition = action === 'download' ? 'attachment' : 'inline';
+            const encoded = encodeKeyForQuery(fileName);
+            return `/api/pdf-proxy?name=${encoded}&disposition=${disposition}`;
         }
 
         function validateFile(file) {
@@ -150,7 +171,7 @@
         async function handleUploadSubmit(e, selectedFile) {
             e.preventDefault();
             const validationErrors = validateFile(selectedFile);
-            if (validationErrors.length > 0) { alert('文件验证失败:\n' + validationErrors.join('\n')); return; }
+            if (validationErrors.length > 0) { alert('文件验证失败:\\n' + validationErrors.join('\\n')); return; }
             const form = new FormData(e.target);
             const title = form.get('title').trim(), authors = form.get('authors').trim();
             if (!title || !authors) { alert('请填写标题和作者信息'); return; }
@@ -202,19 +223,50 @@
                 alert("文件路径无效，无法预览。");
                 return;
             }
-            const content = `<div class="p-0"><div class="flex justify-between items-center p-4 border-b"><h2 class="text-xl font-bold text-gray-800 truncate pr-4">PDF预览 - ${fileName.split('/').pop()}</h2><button class="btn-close-modal text-gray-400 hover:text-gray-800 text-2xl flex-shrink-0">×</button></div><div id="pdf-preview-content" class="pdf-preview-container flex flex-col"><div class="flex flex-col items-center justify-center h-full"><div class="loading-spinner mb-4"></div><p class="text-gray-600">正在生成预览链接...</p></div></div></div>`;
+            const content = `
+              <div class="p-0">
+                <div class="flex justify-between items-center p-4 border-b">
+                  <h2 class="text-xl font-bold text-gray-800 truncate pr-4">PDF预览 - ${fileName.split('/').pop()}</h2>
+                  <button class="btn-close-modal text-gray-400 hover:text-gray-800 text-2xl flex-shrink-0">×</button>
+                </div>
+                <div id="pdf-preview-content" class="pdf-preview-container flex flex-col">
+                  <div class="flex flex-col items-center justify-center h-full">
+                    <div class="loading-spinner mb-4"></div>
+                    <p class="text-gray-600">正在生成预览链接...</p>
+                  </div>
+                </div>
+              </div>`;
             showModal('pdf-preview-modal', content, 'max-w-4xl');
             const previewContent = document.getElementById('pdf-preview-content');
 
             try {
                 await updatePreviewCount(paperId);
-                const pdfUrl = await getSignedUrlForAction(fileName, 'preview');
+                const pdfUrl = getSignedUrlForAction(fileName, 'preview');
                 
-                previewContent.innerHTML = `<div class="pdf-toolbar"><div class="pdf-controls"><span id="page-info" class="text-sm text-gray-600 px-2"></span></div><div class="pdf-controls"><button id="zoom-out" class="pdf-control-btn">缩小</button><span id="zoom-info" class="text-sm text-gray-600 px-2">100%</span><button id="zoom-in" class="pdf-control-btn">放大</button></div><div><a href="${pdfUrl}" download="${fileName.split('/').pop()}" class="pdf-control-btn bg-indigo-600 text-white hover:bg-indigo-700">下载</a></div></div><div id="pdf-canvas-container" class="pdf-canvas-container"><div id="pdf-loading" class="flex flex-col items-center justify-center py-12"><div class="loading-spinner mb-4"></div><p class="text-gray-600">正在加载PDF...</p></div></div>`;
+                previewContent.innerHTML = `
+                  <div class="pdf-toolbar">
+                    <div class="pdf-controls">
+                      <span id="page-info" class="text-sm text-gray-600 px-2"></span>
+                    </div>
+                    <div class="pdf-controls">
+                      <button id="zoom-out" class="pdf-control-btn">缩小</button>
+                      <span id="zoom-info" class="text-sm text-gray-600 px-2">100%</span>
+                      <button id="zoom-in" class="pdf-control-btn">放大</button>
+                    </div>
+                    <div>
+                      <a href="${pdfUrl}" class="pdf-control-btn bg-indigo-600 text-white hover:bg-indigo-700">下载</a>
+                    </div>
+                  </div>
+                  <div id="pdf-canvas-container" class="pdf-canvas-container">
+                    <div id="pdf-loading" class="flex flex-col items-center justify-center py-12">
+                      <div class="loading-spinner mb-4"></div>
+                      <p class="text-gray-600">正在加载PDF...</p>
+                    </div>
+                  </div>`;
 
                 let scale = 1.0;
                 const container = document.getElementById('pdf-canvas-container'), pageInfo = document.getElementById('page-info'), zoomInfo = document.getElementById('zoom-info');
-                const pdfDoc = await window.pdfjsLib.getDocument(pdfUrl).promise;
+                const pdfDoc = await window.pdfjsLib.getDocument({ url: pdfUrl, withCredentials: true }).promise;
                 container.innerHTML = '';
                 pageInfo.textContent = `共 ${pdfDoc.numPages} 页`;
                 
@@ -238,7 +290,7 @@
                 document.getElementById('zoom-out').addEventListener('click', () => { if (scale > 0.25) { scale = Math.max(0.25, scale - 0.25); renderAllPages(); } });
             } catch (error) {
                 console.error("预览失败:", error);
-                previewContent.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center p-8"><svg class="w-16 h-16 text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><h3 class="text-xl font-semibold text-red-600">预览失败</h3><p class="text-gray-600 mt-2">${error.message}</p></div>`;
+                previewContent.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center p-8"><svg class="w-16 h-16 text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><h3 class="text-xl font-semibold text-red-600">预览失败</h3><p class="text-gray-600 mt-2">${error.message}</p><p class="mt-2 text-sm text-gray-500">提示：已切换为同源代理，如仍失败请检查后端环境变量与 OSS 权限。</p></div>`;
             }
         }
         
@@ -246,14 +298,14 @@
             const content = `<div class="p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-gray-800">AI总结: ${paperTitle}</h2><button class="btn-close-modal text-gray-400">×</button></div><div id="summary-content" class="prose max-w-none text-gray-700"><div class="flex items-center justify-center py-10"><div class="loading-spinner"></div><p class="ml-4">正在生成AI总结，请稍候...</p></div></div></div>`;
             showModal('summary-modal', content, 'max-w-2xl');
             try {
-                const response = await fetch(`/api/get-summary?id=${paperId}`);
+                const response = await fetch(`/api/get-summary?id=${encodeURIComponent(paperId)}`);
                 if (!response.ok) {
                     const errData = await response.json().catch(() => ({}));
                     throw new Error(errData.error || '获取总结失败');
                 }
                 const data = await response.json();
-                const formattedSummary = data.summary.replace(/\n/g, '<br>');
-                document.getElementById('summary-content').innerHTML = formattedSummary;
+                const formattedSummary = (data.summary || '').replace(/\n/g, '<br>');
+                document.getElementById('summary-content').innerHTML = formattedSummary || '<p class="text-gray-500">暂无摘要</p>';
             } catch (error) {
                 console.error("获取AI总结失败:", error);
                 document.getElementById('summary-content').innerHTML = `<p class="text-red-500">无法加载AI总结：${error.message}</p>`;
@@ -391,7 +443,10 @@
             const isAdmin = auth.currentUser;
             const papersHtml = papers.map(doc => {
                 const data = doc.data();
-                let filePath = data.uniquePath || (data.fileUrl ? new URL(data.fileUrl).pathname.substring(1) : data.fileName);
+                // 修复：统一规范化文件 key，避免中文/空格导致二次编码
+                const rawPath = data.uniquePath || data.fileUrl || data.fileName;
+                const filePath = normalizeKey(rawPath);
+
                 const deleteBtn = isAdmin ? `<button class="btn-danger w-full py-2 px-3 rounded-md text-xs" data-action="delete" data-id="${doc.id}" data-filename="${filePath}" data-title="${data.title}">删除</button>` : '';
                 const uploadDate = data.uploadDate && data.uploadDate.seconds ? new Date(data.uploadDate.seconds * 1000) : null;
 
@@ -500,8 +555,8 @@
                         await previewPdfWithPdfJs(filename, id);
                     } else if (action === 'download') { 
                         await updateDownloadCount(id); 
-                        const url = await getSignedUrlForAction(filename, 'download').catch(err => { alert(`下载失败: ${err.message}`); return null;});
-                        if(url) window.open(url); 
+                        const url = getSignedUrlForAction(filename, 'download');
+                        window.open(url);
                     } else if (action === 'show-summary') {
                         await showAiSummaryModal(id, title);
                     }
