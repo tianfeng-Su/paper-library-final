@@ -1,85 +1,62 @@
-// api/pdf-proxy.js
-// 作用：用服务端去 OSS 取文件并把字节流原样返回，从而避免浏览器端的 CORS 与二次编码问题
+// /api/pdf-proxy.js
+const OSS = require('ali-oss');
+const fetch = require('node-fetch'); // 已在 package-lock.json 中
 
-import OSS from 'ali-oss';
+const client = new OSS({
+  region: process.env.OSS_REGION,
+  accessKeyId: process.env.OSS_ACCESS_KEY_ID,
+  accessKeySecret: process.env.OSS_ACCESS_KEY_SECRET,
+  bucket: process.env.OSS_BUCKET,
+  secure: true,
+});
 
-function getClient() {
-  return new OSS({
-    // 任选其一：region 或 endpoint；保持与你的 OSS 一致
-    endpoint: 'oss-cn-hongkong.aliyuncs.com',
-    accessKeyId: process.env.ALIYUN_ACCESS_KEY_ID,
-    accessKeySecret: process.env.ALIYUN_ACCESS_KEY_SECRET,
-    bucket: process.env.ALIYUN_OSS_BUCKET,
-  });
+function decodeKeyParam(q) {
+  let key = Array.isArray(q) ? q[0] : (q || '');
+  try { key = key.split('/').map(decodeURIComponent).join('/'); } catch {}
+  return key.replace(/^\/+/, '');
 }
 
-function rfc5987Encode(str) {
-  // Content-Disposition 的 UTF-8 文件名编码
-  return encodeURIComponent(str).replace(/['()]/g, escape).replace(/\*/g, '%2A');
-}
-
-function normalizeKey(raw) {
-  if (!raw) return '';
-  let key = String(raw);
-  // 可能传入完整 URL，这里只取路径
-  try {
-    if (/^https?:\\/\\//i.test(key)) {
-      const u = new URL(key);
-      key = u.pathname;
-    }
-  } catch (_) {}
-  key = key.replace(/^\\/+/, '');             // 去掉开头的 /
-  try { key = decodeURIComponent(key); } catch (_) {}  // 防二次编码
-  return key;
-}
-
-export default async function handler(req, res) {
-  // 允许本域前端调用
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'GET') return res.status(405).json({ error: '仅支持 GET 请求' });
-
-  try {
-    const nameParam = String(req.query.name || '');
-    const key = normalizeKey(nameParam);
-    if (!key) return res.status(400).json({ error: '缺少 name 参数' });
-
-    const dispositionType = req.query.disposition === 'attachment' ? 'attachment' : 'inline';
-    const filename = key.split('/').pop();
-    const contentDisposition = `${dispositionType}; filename*=UTF-8''${rfc5987Encode(filename)}`;
-
-    const client = getClient();
-
-    // 生成用于服务端拉取的临时签名 URL（私有桶也可访问）
-    const signedUrl = client.signatureUrl(key, {
-      expires: 300,
-      response: {
-        'content-disposition': contentDisposition,
-        'content-type': 'application/pdf',
-      },
-    });
-
-    const remote = await fetch(signedUrl);
-    if (!remote.ok) {
-      const text = await remote.text().catch(() => '');
-      return res.status(remote.status).json({ error: 'OSS 获取失败', details: text.slice(0, 200) });
-    }
-
-    // 设置头并把字节流回传给浏览器
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', contentDisposition);
-    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
-
-    const ab = await remote.arrayBuffer();
-    res.status(200).end(Buffer.from(ab));
-  } catch (error) {
-    console.error('PDF 代理错误:', error);
-    res.status(500).json({
-      error: '生成预览链接失败',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+module.exports = async (req, res) => {
+  if (req.method !== 'GET') {
+    res.status(405).json({ error: 'Method Not Allowed' });
+    return;
   }
-}
+
+  const name = decodeKeyParam(req.query.name);
+  if (!name) {
+    res.status(400).json({ error: 'Missing name' });
+    return;
+  }
+  const disposition = req.query.disposition === 'attachment' ? 'attachment' : 'inline';
+  const base = name.split('/').pop();
+  const encodedFileName = encodeURIComponent(base);
+
+  try {
+    // 生成带签名的直链，然后在服务端转发（可携带 Range，兼容 pdf.js 分块加载）
+    const signed = client.signatureUrl(name, {
+      expires: 600,
+      response: { 'content-disposition': `${disposition}; filename="${encodedFileName}"` },
+    });
+
+    const range = req.headers.range;
+    const upstream = await fetch(signed, { headers: range ? { Range: range } : undefined });
+
+    res.status(upstream.status);
+    const h = upstream.headers;
+    if (h.get('content-type'))   res.setHeader('Content-Type', h.get('content-type'));
+    if (h.get('content-length')) res.setHeader('Content-Length', h.get('content-length'));
+    if (h.get('content-range'))  res.setHeader('Content-Range', h.get('content-range'));
+    if (h.get('accept-ranges'))  res.setHeader('Accept-Ranges', h.get('accept-ranges'));
+    res.setHeader('Content-Disposition', `${disposition}; filename="${encodedFileName}"`);
+
+    upstream.body.on('error', () => { /* 忽略下游中断 */ });
+    upstream.body.pipe(res);
+  } catch (err) {
+    console.error('[pdf-proxy]', err);
+    if (err && (err.name === 'NoSuchKeyError' || err.code === 'NoSuchKey')) {
+      res.status(404).json({ error: 'File not found' });
+    } else {
+      res.status(500).json({ error: 'Proxy failed' });
+    }
+  }
+};
