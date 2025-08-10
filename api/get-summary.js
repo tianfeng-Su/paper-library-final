@@ -1,57 +1,88 @@
 // api/get-summary.js
-// 简化版本：先解决基本功能，不依赖复杂的AI服务
+// 基于 Firestore 元数据生成结构化提要；无需外部大模型即可工作
+
+import admin from 'firebase-admin';
+
+/** 初始化 Firebase Admin（支持三种凭证来源） */
+async function initFirebase() {
+  if (admin.apps && admin.apps.length) return admin;
+  let credential = null;
+
+  // 1) 单环境变量包含的服务账号 JSON
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+    credential = admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON));
+  }
+
+  // 2) 常见的三段式环境变量
+  if (!credential && process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+    credential = admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    });
+  }
+
+  // 3) 本地文件（开发环境）
+  if (!credential) {
+    try {
+      const sa = (await import('../serviceAccountKey.json', { assert: { type: 'json' } })).default;
+      credential = admin.credential.cert(sa);
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  if (!credential) {
+    throw new Error('Firebase Admin 凭证未配置');
+  }
+
+  admin.initializeApp({ credential });
+  return admin;
+}
 
 export default async function handler(req, res) {
-  // 设置 CORS 头
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
 
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: '仅支持 GET 请求' });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'GET') return res.status(405).json({ error: '仅支持 GET 请求' });
 
   try {
-    const { id } = req.query;
-    
-    if (!id) {
-      return res.status(400).json({ error: '缺少论文ID参数' });
-    }
+    const id = String(req.query.id || '').trim();
+    if (!id) return res.status(400).json({ error: '缺少参数 id' });
 
-    console.log('收到总结请求，论文ID:', id);
+    const adminSDK = await initFirebase();
+    const db = adminSDK.firestore();
 
-    // 暂时返回一个通用总结，确保基本功能正常
-    const summary = `
-【AI总结功能说明】
+    const snap = await db.collection('papers').doc(id).get();
+    if (!snap.exists) return res.status(404).json({ error: '未找到对应论文' });
 
-此功能正在开发完善中。目前返回的是测试总结内容。
+    const data = snap.data() || {};
+    const title = data.title || '未命名论文';
+    const authors = Array.isArray(data.authors) ? data.authors.join(', ') : (data.authors || '');
+    const keywords = Array.isArray(data.keywords) ? data.keywords.filter(Boolean).slice(0, 8) : [];
+    const year = data.uploadDate && data.uploadDate.seconds ? new Date(data.uploadDate.seconds * 1000).getFullYear() : '';
 
-论文ID: ${id}
+    const lines = [];
+    lines.push(`《${title}》${year ? `（${year}）` : ''}`);
+    if (authors) lines.push(`作者：${authors}`);
+    if (keywords.length) lines.push(`关键词：${keywords.join('、')}`);
+    lines.push('');
+    lines.push('要点速览：');
+    lines.push('• 研究主题：围绕上述关键词提炼的核心议题。');
+    lines.push('• 研究方法：如实证/比较/案例/规范分析等（待读者核对原文）。');
+    lines.push('• 主要结论：作者提出的关键观点与政策含义。');
+    lines.push('• 创新与贡献：相较既有研究的差异与增量。');
+    lines.push('• 局限与下一步：样本、数据或外推性的限制与改进方向。');
+    lines.push('');
+    lines.push('提示：此为基于元数据自动生成的结构化提要，用于快速浏览；如需精准摘要，请下载全文阅读。');
 
-这是一篇学术论文的AI总结示例。真正的AI总结功能需要：
-1. 从OSS下载PDF文件
-2. 解析PDF文本内容  
-3. 调用AI服务生成摘要
-4. 缓存结果到数据库
-
-当前状态：基础框架已完成，AI集成正在调试中。
-
-如果你看到这个消息，说明API连接正常，可以继续完善AI功能。
-    `.trim();
-
-    res.status(200).json({ 
-      summary,
-      timestamp: new Date().toISOString(),
-      paperId: id
-    });
-
+    res.status(200).json({ summary: lines.join('\\n') });
   } catch (error) {
     console.error('API执行错误:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: '服务暂时不可用',
       details: error.message,
       timestamp: new Date().toISOString()
